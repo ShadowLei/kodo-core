@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "target": "es2017",
+    "module": "commonjs",
+    "declaration": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": false,
+    "typeRoots": [
+      "./node_modules/@types/",
+      "./src/@types"
+    ]
+  },
+  "compileOnSave": true,
+  "exclude": [
+    "./dist/*",
+    "./node_modules/*",
+    "./testdata/*",
+    "./design/*",
+    "./test/*"
+  ]
+}
