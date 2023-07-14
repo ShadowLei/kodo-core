@@ -1,5 +1,4 @@
 import { Kodo, MemoryProvider, NodeTranslator } from "../src";
-import { printNodes } from "./_common";
 import { Order, Payment, PaymentDetail, OrderOwner } from "./_modules";
 import * as assert from "assert";
 
@@ -145,8 +144,6 @@ describe("EQ Test", function () {
                 }
             });
 
-            //printNodes(nodes);
-
             assert.strictEqual(nodes.length, 0);
         });
 
@@ -193,7 +190,7 @@ describe("EQ Test", function () {
         });
 
         it("4", () => {
-            let nodes = kodo.explore<Payment>({
+            let nodes = kodo.explore<Order>({
                 $id: "startup",
                 $ns: "order",
                 expression: {

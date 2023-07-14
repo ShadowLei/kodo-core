@@ -76,13 +76,9 @@ export class Kodo {
                 let added = this.nodes.tryAdd(f);
                 if (added) { foundList.push(f); }
             });
-            //dNodes.push(...found);
         });
 
         if (foundList.length <= 0) { return; }
-
-        //TODO here: Consider limit in further
-        //if (dNodes.length >= 10) { return dNodes; }
 
         foundList.forEach(dn => {
             
