@@ -15,10 +15,10 @@ export interface KodoOption extends ExploreOption {
 //It's bulky, but it's powerful
 export class Kodo {
 
-    private translators: INodeTranslator[];
-    private providers: IDataProvider[];
-    private nodes: DataNodeMap;
-    private opt: KodoOption;
+    translators: INodeTranslator[];
+    providers: IDataProvider[];
+    nodes: DataNodeMap;
+    opt: KodoOption;
 
     private getDefaultOption(opt?: Partial<KodoOption>): KodoOption {
         let defaultOpt: KodoOption = {

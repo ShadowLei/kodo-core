@@ -1,6 +1,6 @@
 {
     "name": "kodo-core",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "main": "dist/kodo-core.min.js",
     "types": "./dist/index.d.ts",
     "repository": "git@github.com:ShadowLei/kodo-core.git",

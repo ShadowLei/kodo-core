@@ -11,6 +11,10 @@ export class NodeTranslator implements INodeTranslator {
         this.linkNodes = [];
     }
 
+    all(): LinkNode<any, any>[] {
+        return this.linkNodes;
+    }
+
     //always match for use.
     match<TFrom>(dn: DataNode<TFrom>): boolean {
         return true;
