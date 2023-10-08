@@ -37,7 +37,11 @@ export type QueryExpressionWhere<T> = {
     $where?: Array<QueryExpression<T>>;
 };
 
-export type QueryExpression<T> = QueryExpressionWhere<T> & QueryOn<T>;
+export type QueryExpressionPredicate<T> = (item: T) => boolean;
+
+export type QueryExpressionObject<T> = QueryExpressionWhere<T> & QueryOn<T>;
+
+export type QueryExpression<T> = QueryExpressionObject<T> | QueryExpressionPredicate<T>;
 
 export function isQueryExpressionKey(key: string): boolean {
     return (key === "$with" || key === "$where");

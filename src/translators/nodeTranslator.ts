@@ -1,4 +1,4 @@
-import { LinkExpression, QueryExpression, QueryOnValue, convertLP2RO, revertLinkOperator } from "../expressions";
+import { LinkExpression, QueryExpressionObject, QueryOnValue, convertLP2RO, revertLinkOperator } from "../expressions";
 import { DataNode, LinkNode, QueryNode } from "../nodes";
 import { generateHashCode } from "../utils";
 import { INodeTranslator } from "./iNodeTranslator";
@@ -15,7 +15,7 @@ export class NodeTranslator implements INodeTranslator {
         return this.linkNodes;
     }
 
-    //always match for use.
+    //by default, always match for use.
     match<TFrom>(dn: DataNode<TFrom>): boolean {
         return true;
     }
@@ -33,7 +33,7 @@ export class NodeTranslator implements INodeTranslator {
         return true;
     }
 
-    private tryMapOnData<TFrom, TTo>(rtnQE: QueryExpression<TTo>, where: LinkExpression<TFrom, TTo>, data: DataNode<TFrom>): boolean {
+    private tryMapOnData<TFrom, TTo>(rtnQE: QueryExpressionObject<TTo>, where: LinkExpression<TFrom, TTo>, data: DataNode<TFrom>): boolean {
         let dataVal = data.data[where.$from];
         if (dataVal === undefined) { return false; }
 
@@ -47,14 +47,15 @@ export class NodeTranslator implements INodeTranslator {
         (rtnQE[where.$to] as QueryOnValue<TTo, keyof TTo>).$val = dataVal as any; //TODO here: better strong type?
     }
 
-    private tryMap<TFrom, TTo>(rtnQE: QueryExpression<TTo>, expression: LinkExpression<TFrom, TTo>, data: DataNode<TFrom>): void {
+    private tryMap<TFrom, TTo>(rtnQE: QueryExpressionObject<TTo>, expression: LinkExpression<TFrom, TTo>, data: DataNode<TFrom>): void {
         rtnQE.$with = expression.$with;
 
         this.tryMapOnData(rtnQE, expression, data);
 
         if (expression.$where?.length > 0) {
             expression.$where.forEach(w => {
-                let qeWhere: QueryExpression<TTo> = {};
+                w = w as LinkExpression<TFrom, TTo>;
+                let qeWhere: QueryExpressionObject<TTo> = {};
                 qeWhere.$with = w.$with;
                 qeWhere.$where = [];
                 this.tryMap(qeWhere, w, data);
@@ -77,6 +78,15 @@ export class NodeTranslator implements INodeTranslator {
             qn.$fromLN = ln;
             qn.expression = {};
             qn.expression.$where = [];
+
+            /*
+            let lnExp = ln.expression as LinkExpression<TFrom, TTo>
+            if (typeof lnExp === "function") {
+                lnExp()
+                qn.expression = to => lnExp()
+            }
+            */
+
             this.tryMap(qn.expression, ln.expression as LinkExpression<TFrom, TTo>, data);
             
             rtn.push(qn);

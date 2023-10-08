@@ -1,16 +1,16 @@
-import { Kodo, MemoryProvider, NodeTranslator } from "../src/";
+import { Kodo, MemoryProvider, NodeTranslator } from "../src";
 import { Order, Payment, PaymentDetail, OrderOwner } from "./_modules";
-import { initKodoTestData, verifyIds } from "./_common";
+import { initKodoTestExpressionData, verifyIds } from "./_common";
 import * as assert from "assert";
 
 let kodo = new Kodo("my-test-net", {
     cache: false
 });
 
-describe("EQ Test", function () {
+describe("EQ Expression Test", function () {
 
     before(function () {
-        initKodoTestData(kodo);
+        initKodoTestExpressionData(kodo);
     });
 
     describe("Simple ===", function () {
@@ -18,12 +18,7 @@ describe("EQ Test", function () {
             let nodes = kodo.explore<Payment>({
                 $id: "startup-eq-1",
                 $ns: "payment",
-                expression: {
-                    amount: {
-                        $op: "===",
-                        $val: 2500
-                    }
-                }
+                expression: p => p.amount === 2500
             });
 
             assert.strictEqual(nodes.length, 6);
@@ -51,13 +46,7 @@ describe("EQ Test", function () {
             let nodes = kodo.explore<Payment>({
                 $id: "startup-eq-2",
                 $ns: "payment",
-                expression: {
-                    orderid: "o3",
-                    id: {
-                        $op: "===",
-                        $val: "p3-2"
-                    }
-                }
+                expression: p => p.orderid === "o3" && p.id === "p3-2"
             });
 
             assert.strictEqual(nodes.length, 6);
@@ -85,14 +74,7 @@ describe("EQ Test", function () {
             let nodes = kodo.explore<Payment>({
                 $id: "startup-eq-3",
                 $ns: "payment",
-                expression: {
-                    $with: "||",
-                    orderid: "o3",
-                    id: {
-                        $op: "===",
-                        $val: "p3-1"
-                    }
-                }
+                expression: p => p.id === "p3-1" || p.orderid === "o3"
             });
 
             assert.strictEqual(nodes.length, 6);
@@ -120,14 +102,7 @@ describe("EQ Test", function () {
             let nodes = kodo.explore<Payment>({
                 $id: "startup-eq-4",
                 $ns: "payment",
-                expression: {
-                    $with: "&&",
-                    orderid: "o3",
-                    id: {
-                        $op: "===",
-                        $val: "p3-3"
-                    }
-                }
+                expression: p => p.orderid === "o3" && p.id === "p3-3"
             });
 
             assert.strictEqual(nodes.length, 0);
@@ -137,19 +112,7 @@ describe("EQ Test", function () {
             let nodes = kodo.explore<Payment>({
                 $id: "startup-eq-4",
                 $ns: "payment",
-                expression: {
-                    $where: [{
-                        $with: "||",
-                        $where: [
-                            {
-                                operator: {
-                                    $op: "==",
-                                    $val: null
-                                }
-                            }
-                        ]
-                    }]
-                }
+                expression: p => p.operator == null
             });
 
             assert.strictEqual(nodes.length, 12);
@@ -159,19 +122,7 @@ describe("EQ Test", function () {
             let nodes = kodo.explore<Payment>({
                 $id: "startup-eq-4",
                 $ns: "payment",
-                expression: {
-                    $where: [{
-                        $with: "||",
-                        $where: [
-                            {
-                                operator: {
-                                    $op: "==",
-                                    $val: undefined
-                                }
-                            }
-                        ]
-                    }]
-                }
+                expression: p => p.operator == undefined
             });
 
             assert.strictEqual(nodes.length, 12);
@@ -183,12 +134,7 @@ describe("EQ Test", function () {
             let nodes = kodo.explore<Payment>({
                 $id: "startup-eq-1",
                 $ns: "payment",
-                expression: {
-                    amount: {
-                        $op: "==",
-                        $val: ("2500" as any)
-                    }
-                }
+                expression: p => p.amount == 2500
             });
 
             assert.strictEqual(nodes.length, 6);
@@ -198,19 +144,7 @@ describe("EQ Test", function () {
             let nodes = kodo.explore<Payment>({
                 $id: "startup-eq-4",
                 $ns: "payment",
-                expression: {
-                    $where: [{
-                        $with: "||",
-                        $where: [
-                            {
-                                operator: {
-                                    $op: "===",
-                                    $val: null
-                                }
-                            }
-                        ]
-                    }]
-                }
+                expression: p => p.operator === null
             });
 
             assert.strictEqual(nodes.length, 0);
@@ -220,19 +154,7 @@ describe("EQ Test", function () {
             let nodes = kodo.explore<Payment>({
                 $id: "startup-eq-4",
                 $ns: "payment",
-                expression: {
-                    $where: [{
-                        $with: "||",
-                        $where: [
-                            {
-                                operator: {
-                                    $op: "===",
-                                    $val: undefined
-                                }
-                            }
-                        ]
-                    }]
-                }
+                expression: p => p.operator === undefined
             });
 
             assert.strictEqual(nodes.length, 12);
@@ -242,24 +164,7 @@ describe("EQ Test", function () {
             let nodes = kodo.explore<Payment>({
                 $id: "startup-eq-4",
                 $ns: "payment",
-                expression: {
-                    $where: [{
-                        $where: [
-                            {
-                                operator: {
-                                    $op: "===",
-                                    $val: undefined
-                                }
-                            },
-                            {
-                                operator: {
-                                    $op: "===",
-                                    $val: null
-                                }
-                            }
-                        ]
-                    }]
-                }
+                expression: p => p.operator === undefined && p.operator === null
             });
 
             assert.strictEqual(nodes.length, 0);
@@ -269,16 +174,7 @@ describe("EQ Test", function () {
             let nodes = kodo.explore<Order>({
                 $id: "startup",
                 $ns: "order",
-                expression: {
-                    $where: [
-                        {
-                            id: {
-                                $op: "IN",
-                                $val: ["o1", "o2", "o3", "o4"]
-                            }
-                        },
-                    ]
-                }
+                expression: p => ["o1", "o2", "o3", "o4"].findIndex(m => m === p.id) >= 0
             });
 
             assert.strictEqual(nodes.length, 11);

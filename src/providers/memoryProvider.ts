@@ -1,6 +1,6 @@
 import { DataNode } from "../nodes";
 import { QueryNode } from "../nodes/queryNode";
-import { QueryExpression, ROperator, BOperator, isQueryExpressionKey, QueryOn, QueryOnValue } from "../expressions";
+import { QueryExpression, ROperator, BOperator, isQueryExpressionKey, QueryOn, QueryOnValue, QueryExpressionObject } from "../expressions";
 import { IDataProvider } from "./iDataProvider";
 import { generateHashCode, isNullOrUndefined } from "../utils";
 
@@ -155,7 +155,7 @@ export class MemoryProvider implements IDataProvider {
         }
     }
 
-    private matchOnData<T>(where: QueryExpression<T>, data: any): MatchResult {
+    private matchOnData<T>(where: QueryExpressionObject<T>, data: any): MatchResult {
         let con: BOperator = where.$with || "&&";
         let isAnd = (con === "&&");
         let matchList: boolean[] = [];
@@ -186,6 +186,10 @@ export class MemoryProvider implements IDataProvider {
     private match<T>(expression: QueryExpression<T>, data: any): MatchResult {
         
         let matchList: MatchResult[] = [];
+
+        if (typeof expression === "function") {
+            return expression(data);
+        }
 
         let con: BOperator = expression.$with || "&&";
         let isAnd = (con === "&&");

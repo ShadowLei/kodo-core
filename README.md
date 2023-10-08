@@ -15,6 +15,9 @@ Then we need write `expression` to describe the data relationship & connect them
 By doing the 2 preparations, we can then give a detailed data from any `kodo node` & start to query.
 It then will select & load all the related data via your giving.
 
+## Version Updates
+* v0.0.4: Support query expression on `QueryNode<T>` when explore.
+  > i.e. `expression: p => p.orderid === "o3" && p.id === "p3-2"`
 
 ## Design
 * Kodo-Overview:

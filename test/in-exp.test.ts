@@ -2,30 +2,25 @@
 
 
 import { DataNode, Kodo, MemoryProvider, NodeTranslator } from "../src";
+import { initKodoTestExpressionData } from "./_common";
 import { Order, Payment, PaymentDetail, OrderOwner } from "./_modules";
-import { initKodoTestData, printNodes, verifyIds } from "./_common";
 import * as assert from "assert";
 
 let kodo = new Kodo("my-test-net", {
     cache: false
 });
 
-describe("IN | !IN Test", function () {
+describe("IN | !IN Expression Test", function () {
 
     before(function () {
-        initKodoTestData(kodo);
+        initKodoTestExpressionData(kodo);
     });
 
     describe("IN", function () {
         it("1", () => {
             let nodes = kodo.explore<Payment>({
                 $ns: "payment",
-                expression: {
-                    id: {
-                        $op: "IN",
-                        $val: ["p1a-1", "233"],
-                    }
-                }
+                expression: p => ["p1a-1", "233"].findIndex(m => m === p.id) >= 0
             });
 
             assert.strictEqual(nodes.length, 0);
@@ -35,12 +30,7 @@ describe("IN | !IN Test", function () {
         it("2", () => {
             let nodes = kodo.explore<Payment>({
                 $ns: "payment",
-                expression: {
-                    id: {
-                        $op: "IN",
-                        $val: ["p1-1", "233"],
-                    }
-                }
+                expression: p => ["p1-1", "233"].findIndex(m => m === p.id) >= 0
             });
 
             assert.strictEqual(nodes.length, 2);
@@ -55,12 +45,7 @@ describe("IN | !IN Test", function () {
         it("3", () => {
             let nodes = kodo.explore<Payment>({
                 $ns: "payment",
-                expression: {
-                    id: {
-                        $op: "IN",
-                        $val: ["p1-1", "p3-1"],
-                    }
-                }
+                expression: p => ["p1-1", "p3-1"].findIndex(m => m === p.id) >= 0
             });
 
             assert.strictEqual(nodes.length, 8);
@@ -69,12 +54,7 @@ describe("IN | !IN Test", function () {
         it("4", () => {
             let nodes = kodo.explore<Payment>({
                 $ns: "payment",
-                expression: {
-                    id: {
-                        $op: "!IN",
-                        $val: ["p1-1", "p3-1"],
-                    }
-                }
+                expression: p => ["p1-1", "p3-1"].findIndex(m => m === p.id) < 0
             });
 
             //TODO here:
@@ -89,12 +69,7 @@ describe("IN | !IN Test", function () {
         it("4", () => {
             let nodes = kodo.explore<Payment>({
                 $ns: "payment",
-                expression: {
-                    id: {
-                        $op: "!IN",
-                        $val: ["p1-1", "p3-1", "p3-2"],
-                    }
-                }
+                expression: p => ["p1-1", "p3-1", "p3-2"].findIndex(m => m === p.id) < 0
             });
 
             //printNodes(nodes);

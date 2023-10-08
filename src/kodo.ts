@@ -44,7 +44,8 @@ export class Kodo {
 
     linkExpression(expression: string, params?: string[]): void {
         //TODO here:
-        //this.expressions.push(expression);
+        //expression: ((a == b && a <> c) || (b like "Armstrong"))
+        //Need a volunteer who's familar w/ complier | interpreter to coding on this...
     }
 
     registerTranslator(translator: INodeTranslator) {
@@ -55,7 +56,7 @@ export class Kodo {
         this.providers.push(provider);
     }
 
-    loopExplore<T>(startup: QueryNode<T>, exlpreOpt: ExploreOption): void {
+    private loopExplore<T>(startup: QueryNode<T>, exlpreOpt: ExploreOption): void {
         if (!this.opt.recursion) {
             if (this.nodes.existNS(startup.$ns)) { return; }
         }
@@ -69,9 +70,10 @@ export class Kodo {
         //1. load data from provider
         this.providers.forEach(p => {
 
-            //1. query
+            //1.1 query
             let founds = p.lookup(startup);
             
+            //1.2 try add
             founds.forEach(f => {
                 let added = this.nodes.tryAdd(f);
                 if (added) { foundList.push(f); }

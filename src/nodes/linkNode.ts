@@ -5,9 +5,14 @@ export class LinkNode<TFrom, TTo> extends NodeBase {
     $fromNS: string;
     $toNS: string;
 
+    protected $type?: null | undefined | "R";
+
     expression: LinkExpression<TFrom, TTo>;
 
     private static revertExpression<TFrom, TTo>(origin: LinkExpression<TFrom, TTo>): LinkExpression<TTo, TFrom> {
+
+        if (typeof origin === "function") { return origin as LinkExpression<TTo, TFrom>; }
+
         let rtn: LinkExpression<TTo, TFrom> = {
             $from: origin.$to,
             $to: origin.$from,
@@ -28,11 +33,13 @@ export class LinkNode<TFrom, TTo> extends NodeBase {
     }
 
     static revert<TFrom, TTo>(node: LinkNode<TFrom, TTo>): LinkNode<TTo, TFrom> | null {
+
         let rExp = LinkNode.revertExpression(node.expression);
         if (!rExp) { return null; }
 
         let rtn: LinkNode<TTo, TFrom> = new LinkNode<TTo, TFrom>();
         rtn.$id = `${node.$id}-r`;
+        rtn.$type = "R";
         rtn.$ns = node.$ns;
         rtn.$fromNS = node.$toNS;
         rtn.$toNS = node.$fromNS;
