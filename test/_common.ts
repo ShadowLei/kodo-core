@@ -1,11 +1,11 @@
 
-import * as assert from "assert";
 import { Order, Payment, PaymentDetail, OrderOwner } from "./_modules";
 import { DataNode, Kodo, MemoryProvider, NodeTranslator } from "../src";
+import { expect } from 'bun:test';
 
 function printNode(node: DataNode<any>) {
     console.log(`--======= ${node.$ns} | ${node?.$id} ===========--`);
-    let n = node;
+    let n: DataNode<any> | undefined = node;
     while (true) {
         if (!n) { break; }
 
@@ -19,26 +19,30 @@ function printNode(node: DataNode<any>) {
     }
 }
 
+export function strictEqual(a1: any, a2: any): void  {
+    return expect(a1).toStrictEqual(a2);
+}
+
 export function printNodes(nodes: DataNode<any>[]) {
     console.log(`len: ${nodes.length}`);
     nodes.forEach(m => printNode(m));
 }
 
-export function verifyIds(node: DataNode<any>, ids: string[], qnid: string) {
+export function verifyIds(node: DataNode<any> | undefined, ids: string[], qnid: string) {
     let n = node;
     for (let i = 0; i < ids.length; i++) {
-        assert.strictEqual(n?.$id, ids[i]);
+        strictEqual(n?.$id, ids[i]);
 
         if (i === ids.length - 1) {
-            assert.strictEqual(n.$fromQN?.$id, qnid);
-            assert.strictEqual(!n.$fromQN?.$fromDN, true);
-            assert.strictEqual(!n.$fromQN?.$fromLN, true);
+            strictEqual(n?.$fromQN?.$id, qnid);
+            strictEqual(!n?.$fromQN?.$fromDN, true);
+            strictEqual(!n?.$fromQN?.$fromLN, true);
         }
 
-        n = n.$fromQN?.$fromDN;
+        n = n?.$fromQN?.$fromDN;
     }
 
-    assert.strictEqual(!n, true);
+    strictEqual(!n, true);
 }
 
 export function initKodoTestData(kodo: Kodo) {
