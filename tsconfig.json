@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "declaration": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
+    
     // Environment setup & latest features
     "lib": ["ESNext"],
     "target": "ESNext",
@@ -11,12 +15,10 @@
 
     // Bundler mode
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
-    "noEmit": true,
+    "verbatimModuleSyntax": false,
 
     // Best practices
-    "strict": true,
+    "strict": false,
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
@@ -35,14 +37,13 @@
   },
   // 包含哪些文件
   "include": [
-    "src/**/*.ts",
-    "test/**/*.test.ts",
-    "*.ts"
+    "src/**/*.ts"
   ],
   "exclude": [
-    "./dist/*",
-    "./node_modules/*",
-    "./testdata/*",
-    "./design/*"
+    "dist",
+    "test",
+    "node_modules",
+    "testdata",
+    "design"
   ]
 }

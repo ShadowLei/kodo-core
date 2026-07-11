@@ -1,8 +1,9 @@
 {
   "name": "kodo-core",
-  "version": "0.1.0",
-  "main": "dist/kodo-core.min.js",
-  "types": "./dist/index.d.ts",
+  "version": "0.1.1",
+  "author": "Shadow Lei",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": "git@github.com:ShadowLei/kodo-core.git",
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
@@ -15,7 +16,9 @@
   ],
   "scripts": {
     "build-dev": "bun build ./src/index.ts --outdir ./dist",
-    "build": "bun build --production ./src/index.ts --outdir ./dist",
+    "build:js": "bun build --production ./src/index.ts --outdir ./dist",
+    "build:types": "tsc -p tsconfig.types.json",
+    "build": "bun run build:js && bun run build:types",
     "test": "bun test ./test/*.test.ts"
   },
   "keywords": [
