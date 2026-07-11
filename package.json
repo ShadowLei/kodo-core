@@ -34,5 +34,5 @@
   "peerDependencies": {
     "typescript": "^6"
   },
-  "private": true
+  "private": false
 }
