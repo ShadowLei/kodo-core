@@ -7,20 +7,40 @@ on:
     branches: [ main ]
     
 jobs:
-  build:
+  build-and-publish:
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      id-token: write  # 用于 npm 的 provenance 验证
 
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 18
-        registry-url: https://registry.npmjs.org
-
-    - run: npm i
-    - run: npm run build
-    - run: npm publish
-      env:
-        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      
+      - name: Setup Node.js (for npm publish)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'bun'  # 如果使用 bun 缓存
+      
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      
+      - name: Test
+        run: bun run test
+      
+      - name: Build
+        run: bun run build  # 确保你的 package.json 中有 build 脚本
+      
+      - name: Publish
+        run: bun publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true  # 启用 provenance 验证
