@@ -5,8 +5,7 @@
   "types": "./dist/index.d.ts",
   "repository": "git@github.com:ShadowLei/kodo-core.git",
   "publishConfig": {
-    "registry": "https://registry.npmjs.org",
-    "access": "public"
+    "registry": "https://registry.npmjs.org"
   },
   "files": [
     "LICENSE",
@@ -33,6 +32,5 @@
   },
   "peerDependencies": {
     "typescript": "^6"
-  },
-  "private": false
+  }
 }

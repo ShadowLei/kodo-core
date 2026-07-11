@@ -1,4 +1,4 @@
-name: Meta-Mapper-Publish
+name: Kodo-Core-Publish
 
 on:
   push:
