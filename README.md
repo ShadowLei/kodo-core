@@ -18,6 +18,7 @@ It then will select & load all the related data via your giving.
 ## Version Updates
 * v0.0.4: Support query expression on `QueryNode<T>` when explore.
   > i.e. `expression: p => p.orderid === "o3" && p.id === "p3-2"`
+* v0.1.1: Swtich compiler tools from NodeJs to Bun
 
 ## Design
 * Kodo-Overview:

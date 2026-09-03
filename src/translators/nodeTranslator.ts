@@ -68,9 +68,9 @@ export class NodeTranslator implements INodeTranslator {
     translate<TFrom, TTo>(data: DataNode<TFrom>): QueryNode<TTo>[] {
         let rtn = [];
 
-        this.linkNodes.forEach(ln => {
-            if (ln.$fromNS !== data.$ns) { return; }
+        let fromNodes = this.linkNodes.filter(m => m.$fromNS === data.$ns);
 
+        fromNodes.forEach(ln => {
             let qn = new QueryNode<TTo>();
             qn.$id = `qn-${data.$ns}-${data.$id}-${ln.$id}`;
             qn.$ns = ln.$toNS;

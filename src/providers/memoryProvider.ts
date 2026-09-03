@@ -7,7 +7,7 @@ import { generateHashCode, isNullOrUndefined } from "../utils";
 //defer means delay to judge
 declare type MatchResult = true | false | "defer";
 
-export class MemoryData<T> {
+class MemoryData<T> {
     ns: string;
     val: T;
 }
@@ -216,10 +216,10 @@ export class MemoryProvider implements IDataProvider {
     }
 
     lookup<T>(qNode: QueryNode<T>): DataNode<any>[] {
-        //find match
-        let list = this.objs.filter(m => {
-            if (qNode.$ns !== m.ns) { return false; }
+        let matched = this.objs.filter(m => m.ns === qNode.$ns);
 
+        //find match
+        let list = matched.filter(m => {
             let rtn = this.match(qNode.expression, m.val);
 
             //regards the final "defer" as false

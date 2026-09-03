@@ -1,6 +1,5 @@
 import { LinkExpression } from "../expressions";
 import { NodeBase } from "./nodeBase";
-
 export class LinkNode<TFrom, TTo> extends NodeBase {
     $fromNS: string;
     $toNS: string;
@@ -24,7 +23,7 @@ export class LinkNode<TFrom, TTo> extends NodeBase {
         if (origin.$op === "==") {
             rtn.$op = origin.$op;
             origin.$where?.forEach(m => {
-                let r = this.revertExpression(m);
+                let r = LinkNode.revertExpression(m);
                 if (r) { rtn.$where.push(r); }
             });
         }

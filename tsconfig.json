@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "rootDir": "./src",
     "outDir": "./dist",
     
     // Environment setup & latest features
@@ -37,11 +36,11 @@
   },
   // 包含哪些文件
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "test",
   ],
   "exclude": [
     "dist",
-    "test",
     "node_modules",
     "testdata",
     "design"

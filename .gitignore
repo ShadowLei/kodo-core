@@ -130,3 +130,4 @@ dist
 .pnp.*
 
 #init test
+.DS_Store

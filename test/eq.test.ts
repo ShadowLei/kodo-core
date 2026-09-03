@@ -1,4 +1,4 @@
-import { Kodo, MemoryProvider, NodeTranslator } from "../src/";
+import { Kodo, MemoryProvider, NodeTranslator } from "../src";
 import { Order, Payment, PaymentDetail, OrderOwner } from "./_modules";
 import { initKodoTestData, strictEqual, verifyIds } from "./_common";
 import { describe, test } from 'bun:test';
@@ -7,7 +7,6 @@ let kodo = new Kodo("my-test-net", {
     cache: false
 });
 initKodoTestData(kodo);
-
 
 describe("Simple ===", function () {
     test("1", () => {

@@ -16,7 +16,7 @@ export interface KodoOption extends ExploreOption {
 export class Kodo {
 
     translators: INodeTranslator[];
-    providers: IDataProvider[];
+    providers: Map<string, IDataProvider>;
     nodes: DataNodeMap;
     opt: KodoOption;
 
@@ -33,7 +33,7 @@ export class Kodo {
 
     constructor(protected name: string, opt?: Partial<KodoOption>) {
         this.translators = [];
-        this.providers = [];
+        this.providers = new Map();
         this.nodes = new DataNodeMap();
         this.opt = this.getDefaultOption(opt);
     }
@@ -52,8 +52,8 @@ export class Kodo {
         this.translators.push(translator);
     }
 
-    registerProvider(provider: IDataProvider) {
-        this.providers.push(provider);
+    registerProvider(ns: string, provider: IDataProvider) {
+        this.providers.set(ns, provider);
     }
 
     private loopExplore<T>(startup: QueryNode<T>, exlpreOpt: ExploreOption): void {
@@ -67,20 +67,20 @@ export class Kodo {
         //let dNodes: DataNode<any>[] = [];
         let foundList: DataNode<any>[] = [];
 
-        //1. load data from provider
-        this.providers.forEach(p => {
+        let provider = this.providers.get(startup.$ns);
+        provider = provider ?? this.providers.get("*");
+        if (!provider) {
+            throw new Error(`No data-provider serve the ns: ${startup.$ns}`);
+        }
 
-            //1.1 query
-            let founds = p.lookup(startup);
-            
-            //1.2 try add
-            founds.forEach(f => {
-                let added = this.nodes.tryAdd(f);
-                if (added) { foundList.push(f); }
-            });
+        //1.1 query
+        let founds = provider.lookup(startup);
+        
+        //1.2 try add
+        founds.forEach(f => {
+            let added = this.nodes.tryAdd(f);
+            if (added) { foundList.push(f); }
         });
-
-        if (foundList.length <= 0) { return; }
 
         foundList.forEach(dn => {
             
