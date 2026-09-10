@@ -1,4 +1,4 @@
-import { BOperator, ROperator_Atom, ROperator_Array } from "./_defines";
+import { BOperator, ROperator_Atom, ROperator_Array } from "../_define";
 
 /*
 export interface IObject<T extends ObjectType> {

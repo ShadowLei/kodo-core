@@ -2,7 +2,8 @@
 
 
 import { DataNode, Kodo, MemoryProvider, NodeTranslator } from "../src";
-import { initKodoTestExpressionData, strictEqual } from "./_common";
+import { initKodoTestExpressionData } from "./_meta_link";
+import { strictEqual, verifyIds } from "./_common";
 import { Order, Payment, PaymentDetail, OrderOwner } from "./_modules";
 import { describe, test } from 'bun:test';
 

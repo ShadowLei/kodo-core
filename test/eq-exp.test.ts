@@ -1,6 +1,7 @@
 import { Kodo } from "../src";
 import { Order, Payment } from "./_modules";
-import { initKodoTestExpressionData, strictEqual, verifyIds } from "./_common";
+import { initKodoTestExpressionData } from "./_meta_link";
+import { strictEqual, verifyIds } from "./_common";
 import { describe, test } from 'bun:test';
 
 let kodo = new Kodo("my-test-net", {

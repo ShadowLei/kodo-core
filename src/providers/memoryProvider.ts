@@ -1,6 +1,6 @@
 import { DataNode } from "../nodes";
 import { QueryNode } from "../nodes/queryNode";
-import { QueryExpression, ROperator, BOperator, isQueryExpressionKey, QueryOn, QueryOnValue, QueryExpressionObject } from "../expressions";
+import { QueryExpression, ROperator, BOperator, isQueryExpressionKey, QueryOn, QueryOnValue, QueryExpressionObject, NodeNamespace } from "../expressions";
 import { IDataProvider } from "./iDataProvider";
 import { generateHashCode, isNullOrUndefined } from "../utils";
 
@@ -8,7 +8,7 @@ import { generateHashCode, isNullOrUndefined } from "../utils";
 declare type MatchResult = true | false | "defer";
 
 class MemoryData<T> {
-    ns: string;
+    ns: NodeNamespace<T>;
     val: T;
 }
 
@@ -19,7 +19,11 @@ export class MemoryProvider implements IDataProvider {
         this.objs = [];
     }
 
-    add<T>(namespace: string, obj: T) {
+    getNameNs<T>(x: NodeNamespace<T>): string {
+        return (typeof x === "function") ? x.name : x;
+    }
+
+    add<T>(namespace: NodeNamespace<T>, obj: T) {
         this.objs.push({
             ns: namespace,
             val: obj
@@ -111,43 +115,9 @@ export class MemoryProvider implements IDataProvider {
         }
 
         if (con === "&&") {
-            /*
-            let rtn: MatchResult = "defer";
-            matchList.every(m => {
-                if (m === false) {
-                    rtn = false;
-                    return false;   //break;
-                }
-
-                if (m === true) {
-                    rtn = true;
-                }
-
-                //continue;
-                return true;
-            });
-            */
             let rtn = this.assumeMatchList(matchList, false);
-
             return rtn;
         } else if (con === "||") {
-            /*
-            let rtn: MatchResult = "defer";
-            matchList.every(m => {
-                if (m === true) {
-                    rtn = true;
-                    return false;   //break;
-                }
-
-                if (m === false) {
-                    rtn = false;
-                }
-
-                //continue;
-                return true;
-            });
-            */
-            
             let rtn = this.assumeMatchList(matchList, true);
             return rtn;
         } else {
@@ -216,7 +186,7 @@ export class MemoryProvider implements IDataProvider {
     }
 
     lookup<T>(qNode: QueryNode<T>): DataNode<any>[] {
-        let matched = this.objs.filter(m => m.ns === qNode.$ns);
+        let matched = this.objs.filter(m => this.getNameNs(m.ns) === qNode.$ns);
 
         //find match
         let list = matched.filter(m => {
@@ -231,7 +201,7 @@ export class MemoryProvider implements IDataProvider {
         let rtn = list.map(m => {
             let node = new DataNode<T>();
             node.$fromQN = qNode;
-            node.$ns = m.ns;
+            node.$ns = this.getNameNs(m.ns);
             node.data = m.val;
             node.$id = m.val?.id || generateHashCode(m.val);  //TODO here: use hashcode to generate?
             return node;

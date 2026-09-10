@@ -12,6 +12,9 @@
     "allowJs": true,
     "types": ["bun"],
 
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
     // Bundler mode
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": false,

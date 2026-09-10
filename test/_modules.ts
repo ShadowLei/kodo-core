@@ -1,30 +1,55 @@
+import { mc, mp } from "meta-mapper";
 
+@mc("order")
 export class Order {
-    id?: string;
-    logid?: string;
+    @mp
+    id: string;
 
+    @mp
+    logid: string;
+
+    @mp
     operator?: string;
 }
 
+@mc("payment")
 export class Payment {
-    id?: string;
-    orderid?: string;
-    amount?: number;
+    @mp
+    id: string;
 
+    @mp
+    orderid: string;
+
+    @mp
+    amount: number;
+
+    @mp
     operator?: string;
 }
 
+@mc("payment-detail")
 export class PaymentDetail {
-    id?: string;
-    paymentid?: string;
-    amount?: number;
+    @mp
+    id: string;
+    
+    @mp
+    paymentid: string;
+    
+    @mp
+    amount: number;
 
+    @mp
     desc?: string;
 }
 
+@mc("owner")
 export class OrderOwner {
-    id?: string;
-    orderid?: string;
+    @mp
+    id: string;
+    
+    @mp
+    orderid: string;
 
+    @mp
     name?: string;
 }

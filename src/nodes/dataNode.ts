@@ -1,16 +1,6 @@
 import { NodeBase } from "./nodeBase";
 import { QueryNode } from "./queryNode";
 
-/*
-export type DataNodeObject<T> = {
-    [P in keyof T]?: {
-        //$expression?: LinkExpression;
-        $from?: QueryNode<T>;
-        $val: T[P];
-    };
-};
-*/
-
 export class DataNode<T> extends NodeBase {
     $fromQN?: QueryNode<T>;
 

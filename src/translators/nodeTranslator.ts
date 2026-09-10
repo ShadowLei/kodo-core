@@ -1,6 +1,7 @@
-import { LinkExpression, QueryExpressionObject, QueryOnValue, convertLP2RO, revertLinkOperator } from "../expressions";
+import { LinkExpression, LinkExpressionObject, NodeNamespace, QueryExpressionObject, QueryOnValue, convertLP2RO, revertLinkOperator } from "../expressions";
 import { DataNode, LinkNode, QueryNode } from "../nodes";
 import { generateHashCode } from "../utils";
+import { LinkNodeUtil } from "../utils/linkNodeUtil";
 import { INodeTranslator } from "./iNodeTranslator";
 
 //DataNode + LinkNode => QueryNode
@@ -20,20 +21,27 @@ export class NodeTranslator implements INodeTranslator {
         return true;
     }
 
+    getNameNs<T>(x: NodeNamespace<T>): string {
+        return (typeof x === "function") ? x.name : x;
+    }
+
     link<TFrom, TTo>(ln: LinkNode<TFrom, TTo>): boolean {
+        let fromName = this.getNameNs(ln.$from);
+        let $toName = this.getNameNs(ln.$to)
+        
         if (!ln.$id) {
             let lnid = generateHashCode(ln);
-            ln.$id = `ln-${ln.$fromNS}-${ln.$toNS}-${lnid}`;
+            ln.$id = `ln-${fromName}-${$toName}-${lnid}`;
         }
         this.linkNodes.push(ln);
 
-        let revertLink = LinkNode.revert(ln);
+        let revertLink = LinkNodeUtil.revert(ln);
         if (revertLink) { this.linkNodes.push(revertLink); }
 
         return true;
     }
 
-    private tryMapOnData<TFrom, TTo>(rtnQE: QueryExpressionObject<TTo>, where: LinkExpression<TFrom, TTo>, data: DataNode<TFrom>): boolean {
+    private tryMapOnData<TFrom, TTo>(rtnQE: QueryExpressionObject<TTo>, where: LinkExpressionObject<TFrom, TTo>, data: DataNode<TFrom>): boolean {
         let dataVal = data.data[where.$from];
         if (dataVal === undefined) { return false; }
 
@@ -48,32 +56,35 @@ export class NodeTranslator implements INodeTranslator {
     }
 
     private tryMap<TFrom, TTo>(rtnQE: QueryExpressionObject<TTo>, expression: LinkExpression<TFrom, TTo>, data: DataNode<TFrom>): void {
+        
+        if (typeof expression === "function") {
+            throw new Error("TODO: Not Implemented.");
+        }
+
         rtnQE.$with = expression.$with;
 
         this.tryMapOnData(rtnQE, expression, data);
 
-        if (expression.$where?.length > 0) {
-            expression.$where.forEach(w => {
-                w = w as LinkExpression<TFrom, TTo>;
-                let qeWhere: QueryExpressionObject<TTo> = {};
-                qeWhere.$with = w.$with;
-                qeWhere.$where = [];
-                this.tryMap(qeWhere, w, data);
-                rtnQE.$where.push(qeWhere);
-            });
-        }
+        expression.$where?.forEach(w => {
+            w = w as LinkExpressionObject<TFrom, TTo>;
+            let qeWhere: QueryExpressionObject<TTo> = {};
+            qeWhere.$with = w.$with;
+            qeWhere.$where = [];
+            this.tryMap(qeWhere, w, data);
+            rtnQE.$where.push(qeWhere);
+        });
     }
 
     //DataNode + LinkNode => QueryNode
     translate<TFrom, TTo>(data: DataNode<TFrom>): QueryNode<TTo>[] {
         let rtn = [];
 
-        let fromNodes = this.linkNodes.filter(m => m.$fromNS === data.$ns);
+        let fromNodes = this.linkNodes.filter(m => this.getNameNs(m.$from) === data.$ns);
 
         fromNodes.forEach(ln => {
             let qn = new QueryNode<TTo>();
             qn.$id = `qn-${data.$ns}-${data.$id}-${ln.$id}`;
-            qn.$ns = ln.$toNS;
+            qn.$ns = this.getNameNs(ln.$to);
             qn.$fromDN = data;
             qn.$fromLN = ln;
             qn.expression = {};
