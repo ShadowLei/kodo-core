@@ -1,17 +1,17 @@
 import { Kodo, MemoryProvider, NodeTranslator } from "../src";
 import { initKodoTestData } from "./_meta_link";
 import { strictEqual, verifyIds, printNodes } from "./_common";
-import { Order, Payment, PaymentDetail, OrderOwner } from "./_modules";
+import { Order, Payment, PaymentDetail, OrderOwner } from "./_module";
 import { describe, test } from 'bun:test';
 
 let kodo = new Kodo("my-test-net");
 
 initKodoTestData(kodo);
 
-describe("Cache Test", function () {
-    test("1", () => {
+describe("Cache Test", async function () {
+    test("1", async () => {
         kodo.setOption({ cache: false });
-        let nodes = kodo.explore<Payment>({
+        let nodes = await kodo.explore<Payment>({
             $id: "startup",
             $ns: "payment",
             expression: {
@@ -33,8 +33,8 @@ describe("Cache Test", function () {
         strictEqual(nodes.length, 0);
     });
 
-    test("2", () => {
-        let nodes = kodo.explore<Payment>({
+    test("2", async () => {
+        let nodes = await kodo.explore<Payment>({
             $id: "startup",
             $ns: "payment",
             expression: {
@@ -54,8 +54,8 @@ describe("Cache Test", function () {
         strictEqual(nodes.length, 0);
     });
 
-    test("3", () => {
-        let nodes = kodo.explore<Payment>({
+    test("3", async () => {
+        let nodes = await kodo.explore<Payment>({
             $id: "startup",
             $ns: "payment",
             expression: {
@@ -75,8 +75,8 @@ describe("Cache Test", function () {
         strictEqual(nodes.length, 0);
     });
 
-    test("4", () => {
-        let nodes = kodo.explore<Payment>({
+    test("4", async () => {
+        let nodes = await kodo.explore<Payment>({
             $id: "startup",
             $ns: "order",
             expression: {
@@ -99,8 +99,8 @@ describe("Cache Test", function () {
         strictEqual(nodes.length, 8);
     });
 
-    test("5", () => {
-        let nodes = kodo.explore<Payment>({
+    test("5", async () => {
+        let nodes = await kodo.explore<Payment>({
             $id: "startup",
             $ns: "order",
             expression: {
@@ -122,11 +122,11 @@ describe("Cache Test", function () {
     });
 });
 
-describe("Recursion Test", function () {
-    test("1", () => {
+describe("Recursion Test", async function () {
+    test("1", async () => {
         kodo.setOption({ recursion: false });
         //kodo.setOption({ recursion: false });
-        let nodes = kodo.explore<Payment>({
+        let nodes = await kodo.explore<Payment>({
             $id: "startup",
             $ns: "payment",
             expression: {
@@ -148,8 +148,8 @@ describe("Recursion Test", function () {
         strictEqual(nodes.length, 0);
     });
 
-    test("2", () => {
-        let nodes = kodo.explore<Payment>({
+    test("2", async () => {
+        let nodes = await kodo.explore<Payment>({
             $id: "startup",
             $ns: "payment",
             expression: {
@@ -169,8 +169,8 @@ describe("Recursion Test", function () {
         strictEqual(nodes.length, 0);
     });
 
-    test("3", () => {
-        let nodes = kodo.explore<Payment>({
+    test("3", async () => {
+        let nodes = await kodo.explore<Payment>({
             $id: "startup",
             $ns: "payment",
             expression: {
@@ -190,8 +190,8 @@ describe("Recursion Test", function () {
         strictEqual(nodes.length, 0);
     });
 
-    test("4", () => {
-        let nodes = kodo.explore<Payment>({
+    test("4", async () => {
+        let nodes = await kodo.explore<Payment>({
             $id: "startup",
             $ns: "order",
             expression: {
@@ -213,10 +213,10 @@ describe("Recursion Test", function () {
     });
 });
 
-describe("TierLimit Test", function () {
-    test("1", () => {
+describe("TierLimit Test", async function () {
+    test("1", async () => {
         kodo.setOption({ cache: false, recursion: true, tierLimit: 1 });
-        let nodes = kodo.explore<Payment>({
+        let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-1",
             $ns: "payment",
             expression: {
@@ -230,9 +230,9 @@ describe("TierLimit Test", function () {
         strictEqual(nodes.length, 1);
     });
 
-    test("2", () => {
+    test("2", async () => {
         kodo.setOption({ cache: false, recursion: true, tierLimit: 10 });
-        let nodes = kodo.explore<Payment>({
+        let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-1",
             $ns: "payment",
             expression: {
@@ -246,9 +246,9 @@ describe("TierLimit Test", function () {
         strictEqual(nodes.length, 6);
     });
 
-    test("3", () => {
+    test("3", async () => {
         kodo.setOption({ cache: false, recursion: true, tierLimit: 2 });
-        let nodes = kodo.explore<Payment>({
+        let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-2",
             $ns: "payment",
             expression: {
@@ -263,9 +263,9 @@ describe("TierLimit Test", function () {
         strictEqual(nodes.length, 3);
     });
 
-    test("4", () => {
+    test("4", async () => {
         kodo.setOption({ cache: false, recursion: true, tierLimit: 3 });
-        let nodes = kodo.explore<Payment>({
+        let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-2",
             $ns: "payment",
             expression: {
@@ -282,9 +282,9 @@ describe("TierLimit Test", function () {
         strictEqual(nodes.length, 5);
     });
 
-    test("5", () => {
+    test("5", async () => {
         kodo.setOption({ cache: false, recursion: true, tierLimit: 10 });
-        let nodes = kodo.explore<Payment>({
+        let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-2",
             $ns: "payment",
             expression: {

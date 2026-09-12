@@ -1,3 +1,4 @@
+import { NodeNamespace } from "../_define";
 import { NodeBase } from "./nodeBase";
 import { QueryNode } from "./queryNode";
 

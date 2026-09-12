@@ -1,7 +1,7 @@
 import { Kodo } from "../src";
-import { Order, Payment } from "./_modules";
+import { Order, Payment } from "./_module";
 import { initKodoTestExpressionData } from "./_meta_link";
-import { strictEqual, verifyIds } from "./_common";
+import { printNodes, strictEqual, verifyIds } from "./_common";
 import { describe, test } from 'bun:test';
 
 let kodo = new Kodo("my-test-net", {
@@ -9,15 +9,45 @@ let kodo = new Kodo("my-test-net", {
 });
 initKodoTestExpressionData(kodo);
 
-describe("EQ Expression Test", function () {
+// *** Add: payment-p3-2   payment | p3-2
+// 1
+// *** Add: order-o3   order | o3
+// 1
+// *** Add: payment-detail-pd3-2   payment-detail | pd3-2
+// 2
+// *** Add: payment-p3-1   payment | p3-1
+// 1
+// *** Add: owner-oo3-1    owner | oo3-1
+// *** Add: payment-detail-pd3-1   
 
-    describe("Simple ===", function () {
-        test("1", () => {
-            let nodes = kodo.explore<Payment>({
+// async function tester() {
+//     let nodes = await kodo.explore<Payment>({
+//         $id: "startup-eq-1",
+//         $ns: "payment",
+//         expression: p => p.amount === 2500
+//     });
+
+//     console.log("--==========================================--");
+//     printNodes(nodes);
+//     console.log("--==========================================--");
+// }
+
+// await tester();
+
+describe("EQ Expression Test", async function () {
+
+    describe("Simple ===", async function () {
+        test("1", async () => {
+            let nodes = await kodo.explore<Payment>({
                 $id: "startup-eq-1",
                 $ns: "payment",
                 expression: p => p.amount === 2500
             });
+
+            // console.log("--==========================================--");
+            // printNodes(nodes);
+            // console.log("--==========================================--");
+
 
             strictEqual(nodes.length, 6);
 
@@ -40,8 +70,8 @@ describe("EQ Expression Test", function () {
             verifyIds(pd1, ["pd3-1", "p3-1", "o3", "p3-2"], "startup-eq-1");
         });
 
-        test("2", () => {
-            let nodes = kodo.explore<Payment>({
+        test("2", async () => {
+            let nodes = await kodo.explore<Payment>({
                 $id: "startup-eq-2",
                 $ns: "payment",
                 expression: p => p.orderid === "o3" && p.id === "p3-2"
@@ -68,8 +98,8 @@ describe("EQ Expression Test", function () {
             verifyIds(pd1, ["pd3-1", "p3-1", "o3", "p3-2"], "startup-eq-2");
         });
 
-        test("3", () => {
-            let nodes = kodo.explore<Payment>({
+        test("3", async () => {
+            let nodes = await kodo.explore<Payment>({
                 $id: "startup-eq-3",
                 $ns: "payment",
                 expression: p => p.id === "p3-1" || p.orderid === "o3"
@@ -96,8 +126,8 @@ describe("EQ Expression Test", function () {
             //verifyIds(pd1, ["pd3-1", "p3-1", "o3", "p3-2"], "startup-eq-3");
         });
 
-        test("4", () => {
-            let nodes = kodo.explore<Payment>({
+        test("4", async () => {
+            let nodes = await kodo.explore<Payment>({
                 $id: "startup-eq-4",
                 $ns: "payment",
                 expression: p => p.orderid === "o3" && p.id === "p3-3"
@@ -106,8 +136,8 @@ describe("EQ Expression Test", function () {
             strictEqual(nodes.length, 0);
         });
 
-        test("5", () => {
-            let nodes = kodo.explore<Payment>({
+        test("5", async () => {
+            let nodes = await kodo.explore<Payment>({
                 $id: "startup-eq-4",
                 $ns: "payment",
                 expression: p => p.operator == null
@@ -116,8 +146,8 @@ describe("EQ Expression Test", function () {
             strictEqual(nodes.length, 12);
         });
 
-        test("6", () => {
-            let nodes = kodo.explore<Payment>({
+        test("6", async () => {
+            let nodes = await kodo.explore<Payment>({
                 $id: "startup-eq-4",
                 $ns: "payment",
                 expression: p => p.operator == undefined
@@ -127,9 +157,9 @@ describe("EQ Expression Test", function () {
         });
     });
 
-    describe("Compare ==", function () {
-        test("1", () => {
-            let nodes = kodo.explore<Payment>({
+    describe("Compare ==", async function () {
+        test("1", async () => {
+            let nodes = await kodo.explore<Payment>({
                 $id: "startup-eq-1",
                 $ns: "payment",
                 expression: p => p.amount == 2500
@@ -138,8 +168,8 @@ describe("EQ Expression Test", function () {
             strictEqual(nodes.length, 6);
         });
 
-        test("2", () => {
-            let nodes = kodo.explore<Payment>({
+        test("2", async () => {
+            let nodes = await kodo.explore<Payment>({
                 $id: "startup-eq-4",
                 $ns: "payment",
                 expression: p => p.operator === null
@@ -148,8 +178,8 @@ describe("EQ Expression Test", function () {
             strictEqual(nodes.length, 0);
         });
 
-        test("3", () => {
-            let nodes = kodo.explore<Payment>({
+        test("3", async () => {
+            let nodes = await kodo.explore<Payment>({
                 $id: "startup-eq-4",
                 $ns: "payment",
                 expression: p => p.operator === undefined
@@ -158,8 +188,8 @@ describe("EQ Expression Test", function () {
             strictEqual(nodes.length, 12);
         });
 
-        test("4", () => {
-            let nodes = kodo.explore<Payment>({
+        test("4", async () => {
+            let nodes = await kodo.explore<Payment>({
                 $id: "startup-eq-4",
                 $ns: "payment",
                 expression: p => p.operator === undefined && p.operator === null
@@ -168,8 +198,8 @@ describe("EQ Expression Test", function () {
             strictEqual(nodes.length, 0);
         });
 
-        test("5 - all", () => {
-            let nodes = kodo.explore<Order>({
+        test("5 - all", async () => {
+            let nodes = await kodo.explore<Order>({
                 $id: "startup",
                 $ns: "order",
                 expression: p => ["o1", "o2", "o3", "o4"].findIndex(m => m === p.id) >= 0

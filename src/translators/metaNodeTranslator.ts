@@ -25,7 +25,7 @@ export class MetaNodeTranslator implements INodeTranslator {
     link<TFrom, TTo>(ln: LinkNode<TFrom, TTo>): boolean {
         if (!ln.$id) {
             let lnid = generateHashCode(ln);
-            ln.$id = `ln-${ln.$from}-${ln.$to}-${lnid}`;
+            ln.$id = `ln-${this.getNsName(ln.$from)}-${this.getNsName(ln.$to)}-${lnid}`;
         }
         this.linkNodes.push(ln);
 

@@ -4,7 +4,7 @@
 import { DataNode, Kodo, MemoryProvider, NodeTranslator } from "../src";
 import { initKodoTestExpressionData } from "./_general_link";
 import { strictEqual, verifyIds } from "./_common";
-import { Order, Payment, PaymentDetail, OrderOwner } from "./_modules";
+import { Order, Payment, PaymentDetail, OrderOwner } from "./_module";
 import { describe, test } from 'bun:test';
 
 let kodo = new Kodo("my-test-net", {
@@ -12,9 +12,9 @@ let kodo = new Kodo("my-test-net", {
 });
 initKodoTestExpressionData(kodo);
 
-describe("IN", function () {
-    test("1", () => {
-        let nodes = kodo.explore<Payment>({
+describe("IN", async function () {
+    test("1", async () => {
+        let nodes = await kodo.explore<Payment>({
             $ns: "Payment",
             expression: p => ["p1a-1", "233"].findIndex(m => m === p.id) >= 0
         });
@@ -23,8 +23,8 @@ describe("IN", function () {
 
     });
 
-    test("2", () => {
-        let nodes = kodo.explore<Payment>({
+    test("2", async () => {
+        let nodes = await kodo.explore<Payment>({
             $ns: "Payment",
             expression: p => ["p1-1", "233"].findIndex(m => m === p.id) >= 0
         });
@@ -38,8 +38,8 @@ describe("IN", function () {
         strictEqual(!!p, true);
     });
 
-    test("3", () => {
-        let nodes = kodo.explore<Payment>({
+    test("3", async () => {
+        let nodes = await kodo.explore<Payment>({
             $ns: "Payment",
             expression: p => ["p1-1", "p3-1"].findIndex(m => m === p.id) >= 0
         });
@@ -47,8 +47,8 @@ describe("IN", function () {
         strictEqual(nodes.length, 8);
     });
 
-    test("4", () => {
-        let nodes = kodo.explore<Payment>({
+    test("4", async () => {
+        let nodes = await kodo.explore<Payment>({
             $ns: "Payment",
             expression: p => ["p1-1", "p3-1"].findIndex(m => m === p.id) < 0
         });
@@ -62,8 +62,8 @@ describe("IN", function () {
         strictEqual(nodes.length, 10);
     });
 
-    test("4", () => {
-        let nodes = kodo.explore<Payment>({
+    test("4", async () => {
+        let nodes = await kodo.explore<Payment>({
             $ns: "Payment",
             expression: p => ["p1-1", "p3-1", "p3-2"].findIndex(m => m === p.id) < 0
         });

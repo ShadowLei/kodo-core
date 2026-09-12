@@ -83,7 +83,7 @@ export class MemoryProvider implements IDataProvider {
             default:
                 break;
         }
-        
+
         throw { key: "MemoryProvider.isMatchData", exp: "Not implemented yet." };
     }
 
@@ -154,7 +154,7 @@ export class MemoryProvider implements IDataProvider {
     }
 
     private match<T>(expression: QueryExpression<T>, data: any): MatchResult {
-        
+
         let matchList: MatchResult[] = [];
 
         if (typeof expression === "function") {
@@ -166,14 +166,14 @@ export class MemoryProvider implements IDataProvider {
 
         let matched = this.matchOnData(expression, data);
         if (!matched && isAnd) { return false; }
-        
+
         matchList.push(matched);
 
         if (expression.$where?.length > 0) {
             expression.$where.every(w => {
                 let match = this.match<T>(w, data);
                 matchList.push(match);
-    
+
                 //break:
                 if (!matched && isAnd) { return false; }
 
@@ -185,7 +185,7 @@ export class MemoryProvider implements IDataProvider {
         return rtn;
     }
 
-    lookup<T>(qNode: QueryNode<T>): DataNode<any>[] {
+    async lookup<T>(qNode: QueryNode<T>): Promise<DataNode<any>[]> {
         let matched = this.objs.filter(m => this.getNameNs(m.ns) === qNode.$ns);
 
         //find match

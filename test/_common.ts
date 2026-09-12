@@ -5,16 +5,20 @@ import { expect } from 'bun:test';
 function printNode(node: DataNode<any>) {
     console.log(`--======= ${node.$ns} | ${node?.$id} ===========--`);
     let n: DataNode<any> | undefined = node;
+    console.log(JSON.stringify(n.data));
+    
     while (true) {
-        if (!n) { break; }
 
         console.log(`id: ${n.$id}`);
         console.log(`qnid: ${n.$fromQN?.$id}`);
         console.log(`lnid: ${n.$fromQN?.$fromLN?.$id || null}`);
 
         n = n.$fromQN?.$fromDN;
-
         console.log();
+
+        if (!n) { break; }
+        console.log(`--From:--`);
+
     }
 }
 

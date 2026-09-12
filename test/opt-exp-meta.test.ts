@@ -1,16 +1,16 @@
 import { Kodo, MemoryProvider, NodeTranslator } from "../src";
 import { initKodoTestExpressionData } from "./_meta_link";
 import { strictEqual, verifyIds } from "./_common";
-import { Order, Payment, PaymentDetail, OrderOwner } from "./_modules";
+import { Order, Payment, PaymentDetail, OrderOwner } from "./_module";
 import { describe, test } from 'bun:test';
 
 let kodo = new Kodo("my-test-net");
 initKodoTestExpressionData(kodo);
 
-describe("Cache Test", function () {
-    test("1", () => {
+describe("Cache Test", async function () {
+    test("1", async () => {
         kodo.setOption({ cache: false });
-        let nodes = kodo.explore<Payment>({
+        let nodes = await kodo.explore<Payment>({
             $id: "startup",
             $ns: "payment",
             expression: p => p.id == null
@@ -19,8 +19,8 @@ describe("Cache Test", function () {
         strictEqual(nodes.length, 0);
     });
 
-    test("2", () => {
-        let nodes = kodo.explore<Payment>({
+    test("2", async () => {
+        let nodes = await kodo.explore<Payment>({
             $id: "startup",
             $ns: "payment",
             expression: p => p.operator != null
@@ -29,8 +29,8 @@ describe("Cache Test", function () {
         strictEqual(nodes.length, 0);
     });
 
-    test("3", () => {
-        let nodes = kodo.explore<Payment>({
+    test("3", async () => {
+        let nodes = await kodo.explore<Payment>({
             $id: "startup",
             $ns: "payment",
             expression: p => p.operator != null
@@ -39,8 +39,8 @@ describe("Cache Test", function () {
         strictEqual(nodes.length, 0);
     });
 
-    test("4", () => {
-        let nodes = kodo.explore<Payment>({
+    test("4", async () => {
+        let nodes = await kodo.explore<Payment>({
             $id: "startup",
             $ns: "order",
             expression: o => o.operator != null
@@ -49,8 +49,8 @@ describe("Cache Test", function () {
         strictEqual(nodes.length, 8);
     });
 
-    test("5", () => {
-        let nodes = kodo.explore<Payment>({
+    test("5", async () => {
+        let nodes = await kodo.explore<Payment>({
             $id: "startup",
             $ns: "order",
             expression: p => p.operator != null
@@ -60,11 +60,11 @@ describe("Cache Test", function () {
     });
 });
 
-describe("Recursion Test", function () {
-    test("1", () => {
+describe("Recursion Test", async function () {
+    test("1", async () => {
         kodo.setOption({ recursion: false });
         //kodo.setOption({ recursion: false });
-        let nodes = kodo.explore<Payment>({
+        let nodes = await kodo.explore<Payment>({
             $id: "startup",
             $ns: "payment",
             expression: p => p.id == null
@@ -75,8 +75,8 @@ describe("Recursion Test", function () {
         strictEqual(nodes.length, 0);
     });
 
-    test("2", () => {
-        let nodes = kodo.explore<Payment>({
+    test("2", async () => {
+        let nodes = await kodo.explore<Payment>({
             $id: "startup",
             $ns: "payment",
             expression: p => p.operator != null
@@ -85,8 +85,8 @@ describe("Recursion Test", function () {
         strictEqual(nodes.length, 0);
     });
 
-    test("3", () => {
-        let nodes = kodo.explore<Payment>({
+    test("3", async () => {
+        let nodes = await kodo.explore<Payment>({
             $id: "startup",
             $ns: "payment",
             expression: p => p.operator != null
@@ -95,8 +95,8 @@ describe("Recursion Test", function () {
         strictEqual(nodes.length, 0);
     });
 
-    test("4", () => {
-        let nodes = kodo.explore<Payment>({
+    test("4", async () => {
+        let nodes = await kodo.explore<Payment>({
             $id: "startup",
             $ns: "order",
             expression: o => true || o.operator != null
@@ -106,10 +106,10 @@ describe("Recursion Test", function () {
     });
 });
 
-describe("TierLimit Test", function () {
-    test("1", () => {
+describe("TierLimit Test", async function () {
+    test("1", async () => {
         kodo.setOption({ cache: false, recursion: true, tierLimit: 1 });
-        let nodes = kodo.explore<Payment>({
+        let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-1",
             $ns: "payment",
             expression: p => p.amount === 2500
@@ -118,9 +118,9 @@ describe("TierLimit Test", function () {
         strictEqual(nodes.length, 1);
     });
 
-    test("2", () => {
+    test("2", async () => {
         kodo.setOption({ cache: false, recursion: true, tierLimit: 10 });
-        let nodes = kodo.explore<Payment>({
+        let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-1",
             $ns: "payment",
             expression: p => p.amount === 2500
@@ -129,9 +129,9 @@ describe("TierLimit Test", function () {
         strictEqual(nodes.length, 6);
     });
 
-    test("3", () => {
+    test("3", async () => {
         kodo.setOption({ cache: false, recursion: true, tierLimit: 2 });
-        let nodes = kodo.explore<Payment>({
+        let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-2",
             $ns: "payment",
             expression: p => p.orderid === "o3" && p.id === "p3-2"
@@ -140,9 +140,9 @@ describe("TierLimit Test", function () {
         strictEqual(nodes.length, 3);
     });
 
-    test("4", () => {
+    test("4", async () => {
         kodo.setOption({ cache: false, recursion: true, tierLimit: 3 });
-        let nodes = kodo.explore<Payment>({
+        let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-2",
             $ns: "payment",
             expression: p => p.orderid === "o3" && p.id === "p3-2"
@@ -153,9 +153,9 @@ describe("TierLimit Test", function () {
         strictEqual(nodes.length, 5);
     });
 
-    test("5", () => {
+    test("5", async () => {
         kodo.setOption({ cache: false, recursion: true, tierLimit: 10 });
-        let nodes = kodo.explore<Payment>({
+        let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-2",
             $ns: "payment",
             expression: p => p.orderid === "o3" && p.id === "p3-2"

@@ -2,7 +2,7 @@
 
 
 import { DataNode, Kodo, MemoryProvider, NodeTranslator } from "../src";
-import { Order, Payment, PaymentDetail, OrderOwner } from "./_modules";
+import { Order, Payment, PaymentDetail, OrderOwner } from "./_module";
 import { initKodoTestData } from "./_general_link";
 import { strictEqual, verifyIds } from "./_common";
 import { describe, test } from 'bun:test';
@@ -12,9 +12,9 @@ let kodo = new Kodo("my-test-net", {
 });
 initKodoTestData(kodo);
 
-describe("IN", function () {
-    test("1", () => {
-        let nodes = kodo.explore<Payment>({
+describe("IN", async function () {
+    test("1", async () => {
+        let nodes = await kodo.explore<Payment>({
             $ns: "Payment",
             expression: {
                 id: {
@@ -28,8 +28,8 @@ describe("IN", function () {
 
     });
 
-    test("2", () => {
-        let nodes = kodo.explore<Payment>({
+    test("2", async () => {
+        let nodes = await kodo.explore<Payment>({
             $ns: "Payment",
             expression: {
                 id: {
@@ -48,8 +48,8 @@ describe("IN", function () {
         strictEqual(!!p, true);
     });
 
-    test("3", () => {
-        let nodes = kodo.explore<Payment>({
+    test("3", async () => {
+        let nodes = await kodo.explore<Payment>({
             $ns: "Payment",
             expression: {
                 id: {
@@ -62,8 +62,8 @@ describe("IN", function () {
         strictEqual(nodes.length, 8);
     });
 
-    test("4", () => {
-        let nodes = kodo.explore<Payment>({
+    test("4", async () => {
+        let nodes = await kodo.explore<Payment>({
             $ns: "Payment",
             expression: {
                 id: {
@@ -82,8 +82,8 @@ describe("IN", function () {
         strictEqual(nodes.length, 10);
     });
 
-    test("4", () => {
-        let nodes = kodo.explore<Payment>({
+    test("4", async () => {
+        let nodes = await kodo.explore<Payment>({
             $ns: "Payment",
             expression: {
                 id: {

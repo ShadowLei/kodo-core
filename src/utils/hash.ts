@@ -51,7 +51,5 @@ export function generateHashCode(obj: any,
     //ensure positive num
     hash = hash & 0x7FFFFFFF;
 
-    //console.warn(hash);
-
     return hash.toString();
 }

@@ -1,5 +1,5 @@
 
-import { Order, Payment, PaymentDetail, OrderOwner } from "./_modules";
+import { Order, Payment, PaymentDetail, OrderOwner } from "./_module";
 import { DataNode, Kodo, MemoryProvider, MetaNodeTranslator, NodeTranslator } from "../src";
 
 export function initKodoTestData(kodo: Kodo) {

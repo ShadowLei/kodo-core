@@ -56,9 +56,11 @@ export class Kodo {
         this.providers.set(ns, provider);
     }
 
-    private loopExplore<T>(startup: QueryNode<T>, exlpreOpt: ExploreOption): void {
+    private async loopExplore<T>(startup: QueryNode<T>, exlpreOpt: ExploreOption): Promise<void> {
         if (!this.opt.recursion) {
-            if (this.nodes.existNS(startup.$ns)) { return; }
+            if (this.nodes.existNS(startup.$ns)) {
+                return;
+            }
         }
         if (this.opt.tierLimit) {
             if (exlpreOpt.tierLimit >= this.opt.tierLimit) { return; }
@@ -74,33 +76,57 @@ export class Kodo {
         }
 
         //1.1 query
-        let founds = provider.lookup(startup);
-        
+        let founds = await provider.lookup(startup);
+        if (founds.length <= 0) { return; }
+
         //1.2 try add
         founds.forEach(f => {
             let added = this.nodes.tryAdd(f);
             if (added) { foundList.push(f); }
         });
 
-        foundList.forEach(dn => {
-            
-            this.translators.forEach(t => {
-                if (!t.match(dn)) { return; }
+        if (this.opt.recursion) {
+            //find parallel
 
-                //2. translate
-                let qn = t.translate<any, any>(dn);
-                
-                //3. continue search
-                qn.forEach(q => {
-                    this.loopExplore(q, {
-                        tierLimit: exlpreOpt.tierLimit + 1
+            let tasks: Promise<void>[] = [];
+            foundList.map(dn => {
+
+                this.translators.map(t => {
+                    if (!t.match(dn)) { return; }
+
+                    //2. translate
+                    let qn = t.translate<any, any>(dn);
+
+                    qn.map(q => {
+                        tasks.push(this.loopExplore(q, {
+                            tierLimit: exlpreOpt.tierLimit + 1
+                        }));
                     });
                 });
             });
-        });
+
+            await Promise.all(tasks);
+        } else {
+            //find sequence
+
+            for (const dn of foundList) {
+                for (const t of this.translators) {
+                    if (!t.match(dn)) { continue; }
+
+                    // 2. translate
+                    const qn = await t.translate<any, any>(dn);
+
+                    for (const q of qn) {
+                        await this.loopExplore(q, {
+                            tierLimit: exlpreOpt.tierLimit + 1
+                        });
+                    }
+                }
+            }
+        }
     }
 
-    explore<T>(startup: QueryNode<T>): DataNode<any>[] {
+    async explore<T>(startup: QueryNode<T>): Promise<DataNode<any>[]> {
         if (!this.opt.cache) {
             this.nodes.clear();
         }
@@ -109,10 +135,10 @@ export class Kodo {
             let qnid = generateHashCode(startup);
             startup.$id = `qn-${startup.$ns}-$startup-${qnid}`;
         }
-        this.loopExplore(startup, {
+        await this.loopExplore(startup, {
             tierLimit: 0
         });
-        
+
         return this.nodes.getList();
     }
 }
