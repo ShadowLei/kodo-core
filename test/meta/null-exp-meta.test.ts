@@ -1,7 +1,7 @@
-import { Kodo, MemoryProvider, NodeTranslator } from "../src";
-import { initKodoTestExpressionData } from "./_general_link";
-import { strictEqual, verifyIds } from "./_common";
-import { Order, Payment, PaymentDetail, OrderOwner } from "./_module";
+import { Kodo } from "../../src";
+import { initKodoTestExpressionData } from "./_meta_link";
+import { strictEqual } from "../_common";
+import { Order, Payment, PaymentDetail, OrderOwner } from "../_module";
 import { describe, test } from 'bun:test';
 
 let kodo = new Kodo("my-test-net", {
@@ -13,7 +13,7 @@ describe("Null Test", async function () {
     test("1", async () => {
         let nodes = await kodo.explore<Payment>({
             $id: "startup",
-            $ns: "Payment",
+            $ns: "payment",
             expression: p => p.id == null
         });
 
@@ -23,7 +23,7 @@ describe("Null Test", async function () {
     test("2", async () => {
         let nodes = await kodo.explore<Payment>({
             $id: "startup",
-            $ns: "Payment",
+            $ns: "payment",
             expression: p => p.operator != null
         });
 
@@ -33,7 +33,7 @@ describe("Null Test", async function () {
     test("3", async () => {
         let nodes = await kodo.explore<Payment>({
             $id: "startup",
-            $ns: "Payment",
+            $ns: "payment",
             expression: p => p.operator != null
         });
 
@@ -43,7 +43,7 @@ describe("Null Test", async function () {
     test("4", async () => {
         let nodes = await kodo.explore<Order>({
             $id: "startup",
-            $ns: "Order",
+            $ns: "order",
             expression: p => p.operator != null
         });
 

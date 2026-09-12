@@ -1,22 +1,24 @@
-
-
-
-import { DataNode, Kodo, MemoryProvider, NodeTranslator } from "../src";
-import { initKodoTestExpressionData } from "./_meta_link";
-import { strictEqual, verifyIds } from "./_common";
-import { Order, Payment, PaymentDetail, OrderOwner } from "./_module";
+import { Kodo } from "../../src";
+import { initKodoTestData, initKodoTestExpressionData } from "./_meta_link";
+import { strictEqual, verifyIds } from "../_common";
+import { Order, Payment, PaymentDetail, OrderOwner } from "../_module";
 import { describe, test } from 'bun:test';
 
 let kodo = new Kodo("my-test-net", {
     cache: false
 });
-initKodoTestExpressionData(kodo);
+initKodoTestData(kodo);
 
 describe("IN", async function () {
     test("1", async () => {
         let nodes = await kodo.explore<Payment>({
             $ns: "payment",
-            expression: p => ["p1a-1", "233"].findIndex(m => m === p.id) >= 0
+            expression: {
+                id: {
+                    $op: "IN",
+                    $val: ["p1a-1", "233"],
+                }
+            }
         });
 
         strictEqual(nodes.length, 0);
@@ -26,7 +28,12 @@ describe("IN", async function () {
     test("2", async () => {
         let nodes = await kodo.explore<Payment>({
             $ns: "payment",
-            expression: p => ["p1-1", "233"].findIndex(m => m === p.id) >= 0
+            expression: {
+                id: {
+                    $op: "IN",
+                    $val: ["p1-1", "233"],
+                }
+            }
         });
 
         strictEqual(nodes.length, 2);
@@ -41,7 +48,12 @@ describe("IN", async function () {
     test("3", async () => {
         let nodes = await kodo.explore<Payment>({
             $ns: "payment",
-            expression: p => ["p1-1", "p3-1"].findIndex(m => m === p.id) >= 0
+            expression: {
+                id: {
+                    $op: "IN",
+                    $val: ["p1-1", "p3-1"],
+                }
+            }
         });
 
         strictEqual(nodes.length, 8);
@@ -50,7 +62,12 @@ describe("IN", async function () {
     test("4", async () => {
         let nodes = await kodo.explore<Payment>({
             $ns: "payment",
-            expression: p => ["p1-1", "p3-1"].findIndex(m => m === p.id) < 0
+            expression: {
+                id: {
+                    $op: "!IN",
+                    $val: ["p1-1", "p3-1"],
+                }
+            }
         });
 
         //TODO here:
@@ -65,7 +82,12 @@ describe("IN", async function () {
     test("4", async () => {
         let nodes = await kodo.explore<Payment>({
             $ns: "payment",
-            expression: p => ["p1-1", "p3-1", "p3-2"].findIndex(m => m === p.id) < 0
+            expression: {
+                id: {
+                    $op: "!IN",
+                    $val: ["p1-1", "p3-1", "p3-2"],
+                }
+            }
         });
 
         //printNodes(nodes);
