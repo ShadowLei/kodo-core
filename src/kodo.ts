@@ -8,6 +8,7 @@ export interface ExploreOption {
 }
 
 export interface KodoOption extends ExploreOption {
+    //TODO here: no useful
     cache: boolean;
     recursion: boolean;
 }
@@ -22,7 +23,7 @@ export class Kodo {
 
     private getDefaultOption(opt?: Partial<KodoOption>): KodoOption {
         let defaultOpt: KodoOption = {
-            cache: true,
+            cache: false,
             recursion: true,
             tierLimit: 0
         };

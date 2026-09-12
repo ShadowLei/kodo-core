@@ -191,7 +191,7 @@ describe("Recursion Test", async function () {
     });
 
     test("4", async () => {
-        let nodes = await kodo.explore<Payment>({
+        let nodes = await kodo.explore<Order>({
             $id: "startup",
             $ns: "order",
             expression: {
