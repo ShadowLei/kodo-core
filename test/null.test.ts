@@ -1,5 +1,5 @@
 import { Kodo, MemoryProvider, NodeTranslator } from "../src";
-import { initKodoTestData } from "./_meta_link";
+import { initKodoTestData } from "./_general_link";
 import { strictEqual, verifyIds } from "./_common";
 import { Order, Payment, PaymentDetail, OrderOwner } from "./_modules";
 import { describe, test } from 'bun:test';
@@ -13,7 +13,7 @@ describe("Null Test", function () {
     test("1", () => {
         let nodes = kodo.explore<Payment>({
             $id: "startup",
-            $ns: "payment",
+            $ns: "Payment",
             expression: {
                 $where: [{
                     $where: [
@@ -34,7 +34,7 @@ describe("Null Test", function () {
     test("2", () => {
         let nodes = kodo.explore<Payment>({
             $id: "startup",
-            $ns: "payment",
+            $ns: "Payment",
             expression: {
                 $where: [{
                     $where: [
@@ -55,7 +55,7 @@ describe("Null Test", function () {
     test("3", () => {
         let nodes = kodo.explore<Payment>({
             $id: "startup",
-            $ns: "payment",
+            $ns: "Payment",
             expression: {
                 $where: [{
                     $where: [
@@ -76,7 +76,7 @@ describe("Null Test", function () {
     test("4", () => {
         let nodes = kodo.explore<Order>({
             $id: "startup",
-            $ns: "order",
+            $ns: "Order",
             expression: {
                 $where: [{
                     $with: "||",

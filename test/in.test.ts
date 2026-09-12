@@ -3,7 +3,7 @@
 
 import { DataNode, Kodo, MemoryProvider, NodeTranslator } from "../src";
 import { Order, Payment, PaymentDetail, OrderOwner } from "./_modules";
-import { initKodoTestData } from "./_meta_link";
+import { initKodoTestData } from "./_general_link";
 import { strictEqual, verifyIds } from "./_common";
 import { describe, test } from 'bun:test';
 
@@ -15,7 +15,7 @@ initKodoTestData(kodo);
 describe("IN", function () {
     test("1", () => {
         let nodes = kodo.explore<Payment>({
-            $ns: "payment",
+            $ns: "Payment",
             expression: {
                 id: {
                     $op: "IN",
@@ -30,7 +30,7 @@ describe("IN", function () {
 
     test("2", () => {
         let nodes = kodo.explore<Payment>({
-            $ns: "payment",
+            $ns: "Payment",
             expression: {
                 id: {
                     $op: "IN",
@@ -41,16 +41,16 @@ describe("IN", function () {
 
         strictEqual(nodes.length, 2);
 
-        let o = nodes.find(m => m.$id === "o1" && m.$ns === "order");
+        let o = nodes.find(m => m.$id === "o1" && m.$ns === "Order");
         strictEqual(!!o, true);
 
-        let p = nodes.find(m => m.$id === "p1-1" && m.$ns === "payment");
+        let p = nodes.find(m => m.$id === "p1-1" && m.$ns === "Payment");
         strictEqual(!!p, true);
     });
 
     test("3", () => {
         let nodes = kodo.explore<Payment>({
-            $ns: "payment",
+            $ns: "Payment",
             expression: {
                 id: {
                     $op: "IN",
@@ -64,7 +64,7 @@ describe("IN", function () {
 
     test("4", () => {
         let nodes = kodo.explore<Payment>({
-            $ns: "payment",
+            $ns: "Payment",
             expression: {
                 id: {
                     $op: "!IN",
@@ -84,7 +84,7 @@ describe("IN", function () {
 
     test("4", () => {
         let nodes = kodo.explore<Payment>({
-            $ns: "payment",
+            $ns: "Payment",
             expression: {
                 id: {
                     $op: "!IN",

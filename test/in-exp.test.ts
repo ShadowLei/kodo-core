@@ -2,7 +2,7 @@
 
 
 import { DataNode, Kodo, MemoryProvider, NodeTranslator } from "../src";
-import { initKodoTestExpressionData } from "./_meta_link";
+import { initKodoTestExpressionData } from "./_general_link";
 import { strictEqual, verifyIds } from "./_common";
 import { Order, Payment, PaymentDetail, OrderOwner } from "./_modules";
 import { describe, test } from 'bun:test';
@@ -15,7 +15,7 @@ initKodoTestExpressionData(kodo);
 describe("IN", function () {
     test("1", () => {
         let nodes = kodo.explore<Payment>({
-            $ns: "payment",
+            $ns: "Payment",
             expression: p => ["p1a-1", "233"].findIndex(m => m === p.id) >= 0
         });
 
@@ -25,22 +25,22 @@ describe("IN", function () {
 
     test("2", () => {
         let nodes = kodo.explore<Payment>({
-            $ns: "payment",
+            $ns: "Payment",
             expression: p => ["p1-1", "233"].findIndex(m => m === p.id) >= 0
         });
 
         strictEqual(nodes.length, 2);
 
-        let o = nodes.find(m => m.$id === "o1" && m.$ns === "order");
+        let o = nodes.find(m => m.$id === "o1" && m.$ns === "Order");
         strictEqual(!!o, true);
 
-        let p = nodes.find(m => m.$id === "p1-1" && m.$ns === "payment");
+        let p = nodes.find(m => m.$id === "p1-1" && m.$ns === "Payment");
         strictEqual(!!p, true);
     });
 
     test("3", () => {
         let nodes = kodo.explore<Payment>({
-            $ns: "payment",
+            $ns: "Payment",
             expression: p => ["p1-1", "p3-1"].findIndex(m => m === p.id) >= 0
         });
 
@@ -49,7 +49,7 @@ describe("IN", function () {
 
     test("4", () => {
         let nodes = kodo.explore<Payment>({
-            $ns: "payment",
+            $ns: "Payment",
             expression: p => ["p1-1", "p3-1"].findIndex(m => m === p.id) < 0
         });
 
@@ -64,7 +64,7 @@ describe("IN", function () {
 
     test("4", () => {
         let nodes = kodo.explore<Payment>({
-            $ns: "payment",
+            $ns: "Payment",
             expression: p => ["p1-1", "p3-1", "p3-2"].findIndex(m => m === p.id) < 0
         });
 
