@@ -19,7 +19,7 @@
     "build:js": "bun build --production ./src/index.ts --outdir ./dist",
     "build:types": "tsc -p tsconfig.types.json",
     "build": "bun run build:js && bun run build:types",
-    "test:ns": "bun test ./test/opt-exp.test.ts",
+    "test:ns": "bun test ./test/orm/*.test.ts",
     "test": "bun test ./test/**/*.test.ts"
   },
   "keywords": [
@@ -32,6 +32,8 @@
   "type": "module",
   "dependencies": {
     "@duckdb/node-api": "^1.5.5-r.4",
+    "@types/pg": "^8.23.1",
+    "pg": "^8.23.0",
     "typeorm": "^1.1.1"
   },
   "devDependencies": {

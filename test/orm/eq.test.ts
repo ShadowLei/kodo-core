@@ -1,43 +1,56 @@
 import { Kodo } from "../../src";
-import { initKodoTestData, initKodoTestExpressionData } from "./_meta_link";
+import { Order, Payment } from "../_module";
+import { initKodoTestExpressionData, initKodoTestData } from "./_orm_link";
 import { strictEqual, verifyIds } from "../_common";
-import { Order, Payment, PaymentDetail, OrderOwner } from "../_module";
 import { describe, test } from 'bun:test';
+import { DataSource, And, Brackets } from "typeorm";
 
 let kodo = new Kodo("my-test-net", {
-    cache: false
+    cache: false,
+    tierLimit: 5
 });
 initKodoTestData(kodo);
+
+// await kodo.explore<Payment>({
+//             $id: "startup-eq-1",
+//             $ns: "Payment",
+//             expression: {
+//                 amount: {
+//                     $op: "===",
+//                     $val: 2500
+//                 },
+//             }
+//         });
 
 describe("Simple ===", async function () {
     test("1", async () => {
         let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-1",
-            $ns: "payment",
+            $ns: "Payment",
             expression: {
                 amount: {
                     $op: "===",
                     $val: 2500
-                }
+                },
             }
         });
 
         strictEqual(nodes.length, 6);
 
-        let o1 = nodes.find(m => m.$ns === "order" && m.$id === "o3");
+        let o1 = nodes.find(m => m.$ns === "Order" && m.$id === "o3");
         strictEqual(!!o1, true);
 
-        let p1 = nodes.find(m => m.$ns === "payment" && m.$id === "p3-1");
+        let p1 = nodes.find(m => m.$ns === "Payment" && m.$id === "p3-1");
         strictEqual(!!p1, true);
-        let p2 = nodes.find(m => m.$ns === "payment" && m.$id === "p3-2");
+        let p2 = nodes.find(m => m.$ns === "Payment" && m.$id === "p3-2");
         strictEqual(!!p2, true);
 
-        let pd1 = nodes.find(m => m.$ns === "payment-detail" && m.$id === "pd3-1");
+        let pd1 = nodes.find(m => m.$ns === "PaymentDetail" && m.$id === "pd3-1");
         strictEqual(!!pd1, true);
-        let pd2 = nodes.find(m => m.$ns === "payment-detail" && m.$id === "pd3-2");
+        let pd2 = nodes.find(m => m.$ns === "PaymentDetail" && m.$id === "pd3-2");
         strictEqual(!!pd2, true);
 
-        let oo = nodes.find(m => m.$ns === "owner" && m.$id === "oo3-1");
+        let oo = nodes.find(m => m.$ns === "OrderOwner" && m.$id === "oo3-1");
         strictEqual(!!oo, true);
 
         verifyIds(pd1, ["pd3-1", "p3-1", "o3", "p3-2"], "startup-eq-1");
@@ -46,7 +59,7 @@ describe("Simple ===", async function () {
     test("2", async () => {
         let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-2",
-            $ns: "payment",
+            $ns: "Payment",
             expression: {
                 orderid: "o3",
                 id: {
@@ -58,20 +71,20 @@ describe("Simple ===", async function () {
 
         strictEqual(nodes.length, 6);
 
-        let o1 = nodes.find(m => m.$ns === "order" && m.$id === "o3");
+        let o1 = nodes.find(m => m.$ns === "Order" && m.$id === "o3");
         strictEqual(!!o1, true);
 
-        let p1 = nodes.find(m => m.$ns === "payment" && m.$id === "p3-1");
+        let p1 = nodes.find(m => m.$ns === "Payment" && m.$id === "p3-1");
         strictEqual(!!p1, true);
-        let p2 = nodes.find(m => m.$ns === "payment" && m.$id === "p3-2");
+        let p2 = nodes.find(m => m.$ns === "Payment" && m.$id === "p3-2");
         strictEqual(!!p2, true);
 
-        let pd1 = nodes.find(m => m.$ns === "payment-detail" && m.$id === "pd3-1");
+        let pd1 = nodes.find(m => m.$ns === "PaymentDetail" && m.$id === "pd3-1");
         strictEqual(!!pd1, true);
-        let pd2 = nodes.find(m => m.$ns === "payment-detail" && m.$id === "pd3-2");
+        let pd2 = nodes.find(m => m.$ns === "PaymentDetail" && m.$id === "pd3-2");
         strictEqual(!!pd2, true);
 
-        let oo = nodes.find(m => m.$ns === "owner" && m.$id === "oo3-1");
+        let oo = nodes.find(m => m.$ns === "OrderOwner" && m.$id === "oo3-1");
         strictEqual(!!oo, true);
 
         verifyIds(pd1, ["pd3-1", "p3-1", "o3", "p3-2"], "startup-eq-2");
@@ -80,7 +93,7 @@ describe("Simple ===", async function () {
     test("3", async () => {
         let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-3",
-            $ns: "payment",
+            $ns: "Payment",
             expression: {
                 $with: "||",
                 orderid: "o3",
@@ -93,20 +106,20 @@ describe("Simple ===", async function () {
 
         strictEqual(nodes.length, 6);
 
-        let o1 = nodes.find(m => m.$ns === "order" && m.$id === "o3");
+        let o1 = nodes.find(m => m.$ns === "Order" && m.$id === "o3");
         strictEqual(!!o1, true);
 
-        let p1 = nodes.find(m => m.$ns === "payment" && m.$id === "p3-1");
+        let p1 = nodes.find(m => m.$ns === "Payment" && m.$id === "p3-1");
         strictEqual(!!p1, true);
-        let p2 = nodes.find(m => m.$ns === "payment" && m.$id === "p3-2");
+        let p2 = nodes.find(m => m.$ns === "Payment" && m.$id === "p3-2");
         strictEqual(!!p2, true);
 
-        let pd1 = nodes.find(m => m.$ns === "payment-detail" && m.$id === "pd3-1");
+        let pd1 = nodes.find(m => m.$ns === "PaymentDetail" && m.$id === "pd3-1");
         strictEqual(!!pd1, true);
-        let pd2 = nodes.find(m => m.$ns === "payment-detail" && m.$id === "pd3-2");
+        let pd2 = nodes.find(m => m.$ns === "PaymentDetail" && m.$id === "pd3-2");
         strictEqual(!!pd2, true);
 
-        let oo = nodes.find(m => m.$ns === "owner" && m.$id === "oo3-1");
+        let oo = nodes.find(m => m.$ns === "OrderOwner" && m.$id === "oo3-1");
         strictEqual(!!oo, true);
 
         //verifyIds(pd1, ["pd3-1", "p3-1", "o3", "p3-2"], "startup-eq-3");
@@ -115,7 +128,7 @@ describe("Simple ===", async function () {
     test("4", async () => {
         let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-4",
-            $ns: "payment",
+            $ns: "Payment",
             expression: {
                 $with: "&&",
                 orderid: "o3",
@@ -129,11 +142,10 @@ describe("Simple ===", async function () {
         strictEqual(nodes.length, 0);
     });
 
-    
     test("4.1", async () => {
         let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-4.1",
-            $ns: "payment",
+            $ns: "Payment",
             expression: {
                 $with: "&&",
                 orderid: "o3",
@@ -150,7 +162,7 @@ describe("Simple ===", async function () {
     test("5", async () => {
         let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-4",
-            $ns: "payment",
+            $ns: "Payment",
             expression: {
                 $where: [{
                     $with: "||",
@@ -172,7 +184,7 @@ describe("Simple ===", async function () {
     test("6", async () => {
         let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-4",
-            $ns: "payment",
+            $ns: "Payment",
             expression: {
                 $where: [{
                     $with: "||",
@@ -196,11 +208,11 @@ describe("Compare ==", async function () {
     test("1", async () => {
         let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-1",
-            $ns: "payment",
+            $ns: "Payment",
             expression: {
                 amount: {
                     $op: "==",
-                    $val: ("2500" as any)
+                    $val: 2500
                 }
             }
         });
@@ -211,7 +223,7 @@ describe("Compare ==", async function () {
     test("2", async () => {
         let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-4",
-            $ns: "payment",
+            $ns: "Payment",
             expression: {
                 $where: [{
                     $with: "||",
@@ -227,13 +239,13 @@ describe("Compare ==", async function () {
             }
         });
 
-        strictEqual(nodes.length, 0);
+        strictEqual(nodes.length, 12);
     });
 
     test("3", async () => {
         let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-4",
-            $ns: "payment",
+            $ns: "Payment",
             expression: {
                 $where: [{
                     $with: "||",
@@ -255,7 +267,7 @@ describe("Compare ==", async function () {
     test("4", async () => {
         let nodes = await kodo.explore<Payment>({
             $id: "startup-eq-4",
-            $ns: "payment",
+            $ns: "Payment",
             expression: {
                 $where: [{
                     $where: [
@@ -276,13 +288,13 @@ describe("Compare ==", async function () {
             }
         });
 
-        strictEqual(nodes.length, 0);
+        strictEqual(nodes.length, 12);
     });
 
     test("5 - all", async () => {
         let nodes = await kodo.explore<Order>({
             $id: "startup",
-            $ns: "order",
+            $ns: "Order",
             expression: {
                 $where: [
                     {
@@ -301,7 +313,7 @@ describe("Compare ==", async function () {
     test("6 - partial", async () => {
         let nodes = await kodo.explore<Order>({
             $id: "startup",
-            $ns: "order",
+            $ns: "Order",
             expression: {
                 $where: [
                     {
@@ -320,7 +332,7 @@ describe("Compare ==", async function () {
     test("7 - partial", async () => {
         let nodes = await kodo.explore<Order>({
             $id: "startup",
-            $ns: "order",
+            $ns: "Order",
             expression: {
                 $where: [
                     {

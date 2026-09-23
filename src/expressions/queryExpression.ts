@@ -1,4 +1,5 @@
 import { BOperator, ROperator_Atom, ROperator_Array } from "../_define";
+import { isNullOrUndefined } from "../utils";
 
 /*
 export interface IObject<T extends ObjectType> {
@@ -45,4 +46,32 @@ export type QueryExpression<T> = QueryExpressionObject<T> | QueryExpressionPredi
 
 export function isQueryExpressionKey(key: string): boolean {
     return (key === "$with" || key === "$where");
+}
+
+export function isQueryOnValue(val: any): boolean {
+    if (isNullOrUndefined(val)) { return false; }
+    
+    if (!Array.isArray(val) && typeof(val) === "object") {
+        let v = val as QueryOnValue<any, any>;
+        
+        v.$op ||= "==";
+        return true;
+    }
+
+    return false;
+}
+
+export function isEmptyQueryExp<T>(exp: QueryExpression<T>): boolean {
+
+    if (typeof (exp) === "function") {
+        return false;
+    }
+
+    if (exp.$where?.length > 0) { return false; }
+
+    for (let key in exp) {
+        if (!isQueryExpressionKey(key)) { return false; }
+    }
+
+    return true;
 }

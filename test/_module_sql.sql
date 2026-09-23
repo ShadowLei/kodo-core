@@ -8,7 +8,10 @@ GRANT CONNECT ON DATABASE kodo_test TO kodo;
 GRANT USAGE, CREATE ON DATABASE kodo_test TO kodo;
 GRANT USAGE, CREATE ON SCHEMA public TO kodo;
 
-GRANT USAGE, CREATE ON SCHEMA public.kodo_test TO kodo;
+GRANT ALL PRIVILEGES ON "order" TO kodo;
+GRANT ALL PRIVILEGES ON "payment" TO kodo;
+GRANT ALL PRIVILEGES ON "payment-detail" TO kodo;
+GRANT ALL PRIVILEGES ON "owner" TO kodo;
 
 -- 2.
 > psql -U kodo -h localhost -d kodo_test

@@ -1,4 +1,4 @@
-import { LinkExpression, LinkExpressionObject, NodeNamespace, QueryExpressionObject, QueryOnValue, convertLP2RO, revertLinkOperator } from "../expressions";
+import { LinkExpression, LinkExpressionObject, NodeNamespace, QueryExpressionObject, QueryOnValue, convertLP2RO, isEmptyQueryExp, revertLinkOperator } from "../expressions";
 import { DataNode, LinkNode, QueryNode } from "../nodes";
 import { generateHashCode } from "../utils";
 import { LinkNodeUtil } from "../utils/linkNodeUtil";
@@ -43,6 +43,12 @@ export class NodeTranslator implements INodeTranslator {
 
     private tryMapOnData<TFrom, TTo>(rtnQE: QueryExpressionObject<TTo>, where: LinkExpressionObject<TFrom, TTo>, data: DataNode<TFrom>): boolean {
         let dataVal = data.data[where.$from];
+
+        // console.log("===try map===")
+        // console.log(data.data);
+        // console.log(where.$from);
+        // console.log(dataVal);
+
         if (dataVal === undefined) { return false; }
 
         let rop = revertLinkOperator(where.$op);
@@ -53,6 +59,9 @@ export class NodeTranslator implements INodeTranslator {
         rtnQE[where.$to] ||= {} as any;
         (rtnQE[where.$to] as QueryOnValue<TTo, keyof TTo>).$op = convertLP2RO(rop);
         (rtnQE[where.$to] as QueryOnValue<TTo, keyof TTo>).$val = dataVal as any; //TODO here: better strong type?
+
+        // console.log("===try map to ===")
+        // console.log(rtnQE);
     }
 
     private tryMap<TFrom, TTo>(rtnQE: QueryExpressionObject<TTo>, expression: LinkExpression<TFrom, TTo>, data: DataNode<TFrom>): void {
@@ -82,7 +91,7 @@ export class NodeTranslator implements INodeTranslator {
         let fromNodes = this.linkNodes.filter(m => this.getNameNs(m.$from) === data.$ns);
 
         fromNodes.forEach(ln => {
-            let qn = new QueryNode<TTo>();
+            let qn: QueryNode<TTo> = new QueryNode<TTo>();
             qn.$id = `qn-${data.$ns}-${data.$id}-${ln.$id}`;
             qn.$ns = this.getNameNs(ln.$to);
             qn.$fromDN = data;
@@ -99,6 +108,10 @@ export class NodeTranslator implements INodeTranslator {
             */
 
             this.tryMap(qn.expression, ln.expression as LinkExpression<TFrom, TTo>, data);
+
+            if (isEmptyQueryExp(qn.expression)) {
+                throw new Error("Where is Empty");
+            }
             
             rtn.push(qn);
         });

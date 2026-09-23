@@ -1,29 +1,35 @@
 import { DataNode } from "../nodes";
 import { QueryNode } from "../nodes/queryNode";
-import { QueryExpression, ROperator, BOperator, isQueryExpressionKey, QueryOn, QueryOnValue, QueryExpressionObject } from "../expressions";
+import { QueryExpression, ROperator, BOperator, isQueryExpressionKey, QueryOn, QueryOnValue, QueryExpressionObject, isQueryOnValue } from "../expressions";
 import { IDataProvider } from "./iDataProvider";
 import { generateHashCode, isNullOrUndefined } from "../utils";
-import { And, Between, DataSource, FindOperator, ILike, In, IsNull, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Not, Or } from "typeorm";
+import { And, Between, DataSource, Equal, FindOperator, FindOptionsWhere, ILike, In, IsNull, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Not, ObjectLiteral, Or, SelectQueryBuilder } from "typeorm";
 
 
 export class TypeOrmProvider implements IDataProvider {
     constructor(private ds: DataSource) {
     }
 
-    private mapOperator(op: ROperator, val: any): FindOperator<any> {
+    private mapOperator(refIdx: number, op: ROperator, key: string, val: any): {exp: string, val: ObjectLiteral} {
         op ||= "==";
+
+        let keyRef = `${key}${refIdx}`;
         
         switch (op) {
-            case "IN": return In(val);
-            case "!IN": return Not(In(val));
+            case "IN": return {exp: `${key} IN (:...${keyRef})`, val: {[keyRef]: val}};
+            case "!IN": return {exp: `${key} NOT IN (:...${keyRef})`, val: {[keyRef]: val}};
             case "==":
-            case "===": return (isNullOrUndefined(val) ? IsNull(): val);
+            case "===": return (isNullOrUndefined(val) ?
+                            {exp: `${key} IS NULL`, val: null} :
+                            {exp: `${key} = :${keyRef}`, val: {[keyRef]: val}})
             case "!=":
-            case "!==": return (isNullOrUndefined(val) ? Not(IsNull()): Not(val));
-            case "<":  return LessThan(val);
-            case "<=": return LessThanOrEqual(val);
-            case ">":  return MoreThan(val);
-            case ">=": return MoreThanOrEqual(val);
+            case "!==": return (isNullOrUndefined(val) ?
+                            {exp: `${key} IS NOT NULL`, val: null} :
+                            {exp: `${key} <> :${keyRef}`, val: {[keyRef]: val}})
+            case "<":  return {exp: `${key} < :${keyRef}`, val: {[keyRef]: val}};
+            case "<=": return {exp: `${key} <= :${keyRef}`, val: {[keyRef]: val}};
+            case ">":  return {exp: `${key} > :${keyRef}`, val: {[keyRef]: val}};
+            case ">=": return {exp: `${key} >= :${keyRef}`, val: {[keyRef]: val}};
             // case "LIKE":  return Like(val);
             // case "ILIKE": return ILike(val);
             // case "NULL":  return IsNull();
@@ -33,69 +39,136 @@ export class TypeOrmProvider implements IDataProvider {
                 throw new Error(`TypeOrm: Unsupported op: ${op}`)
         }
     }
-    
-    private queryOnData<T>(where: QueryOn<T>): FindOperator<any>[] {
-        let matchList: FindOperator<any>[] = [];
+
+    private queryOnData<T>(refIdx: number, where: QueryExpressionObject<T>): {
+        refIdx: number,
+        where: {exp: string, val?: ObjectLiteral}[]
+     } {
+        let rtn: {exp: string, val?: ObjectLiteral}[] = [];
+
         for (let key in where) {
             if (isQueryExpressionKey(key)) { continue; }
 
-            let val: any = where[key];
+            let whereVal = where[key];
 
-            if (typeof val === "object") {
-                let theVal = val as QueryOnValue<T, keyof T>;
+            // let exp: FindOperator<T> = null;
 
-                let exp = this.mapOperator(theVal.$op, theVal.$val);
-                matchList.push(exp);
+            if (isQueryOnValue(whereVal)) {
+                let theVal = whereVal as QueryOnValue<T, keyof T>;
+                // console.warn(`*** Try valid: ${isNullOrUndefined(theVal.$val)}`);
+                let expVal = this.mapOperator(++refIdx, theVal.$op, key, theVal.$val);
+                rtn.push(expVal);
             } else {
-                let exp = this.mapOperator("==", val);
-                matchList.push(exp);
+                // console.warn(`*** Try valid: ${isNullOrUndefined(val)}`);
+                let expVal = this.mapOperator(++refIdx, "==", key, whereVal);
+                rtn.push(expVal);
             }
         }
 
-        return matchList;
+        return {
+            refIdx: refIdx,
+            where: rtn
+        };
     }
 
-    private query<T>(expression: QueryExpression<T>): FindOperator<any> {
+    private mergeQueryItems<T>(matchList: FindOptionsWhere<T>[], condition: BOperator): FindOptionsWhere<T> {
+        if (matchList.length === 0) { throw new Error("TypeOrm: can't find *"); }   //TBD: we allow but just to avoid error
+        if (matchList.length === 1) { return matchList[0]; }
+        else if (matchList.length >= 2) {
+            let ke = matchList as FindOperator<T>[];
+            return ((condition === "&&") ? And(...ke) as any : Or(...ke) as any);
+        } else {
+            throw new Error("TypeOrm: shouldn't be here.");
+        }
+    }
+
+    private query<T>(refIdx: number, queryBuilder: SelectQueryBuilder<ObjectLiteral>, expression: QueryExpression<T>): {
+        refIdx: number,
+        queryBuilder: SelectQueryBuilder<ObjectLiteral>
+    } {
         if (typeof expression === "function") {
             throw new Error("TypeOrm Express Match: Not implement yet.");
         }
 
-        const where = expression.$where || [];
-        let matchList: FindOperator<any>[] = [];
+        // console.log("===== ======")
+        // console.log(expression);
+
+        const isAnd = (expression.$with || "&&");
 
         //1. find on data
-        let dataMatch = this.queryOnData(expression);
-        matchList.push(...dataMatch);
+        let dataRtn = this.queryOnData<T>(++refIdx, expression);
+        refIdx = dataRtn.refIdx;
+
+        for (const item of dataRtn.where) {
+            if (isAnd) {
+                queryBuilder = queryBuilder.andWhere(item.exp, item.val);
+            } else {
+                queryBuilder = queryBuilder.orWhere(item.exp, item.val);
+            }
+        }
+
+        let matchList: {exp: string, val: ObjectLiteral}[] = [];
 
         //2. find on sub-expression-where
-        for (const con of where) {
-            if (typeof con === "function") { throw new Error("TypeOrm Express Condition: Not implement yet."); }
+        const where = expression.$where || [];
+        for (const whereSub of where) {
+            if (typeof whereSub === "function") { throw new Error("TypeOrm Express Condition: Not implement yet."); }
 
-            matchList.push(this.query(con.$where));
+            let queryRtn = this.query<T>(refIdx, queryBuilder, whereSub);
+            refIdx = queryRtn.refIdx;
+            queryBuilder = queryRtn.queryBuilder;
         }
+
+        return {
+            refIdx: refIdx,
+            queryBuilder: queryBuilder
+        };
 
         //3. combine & return
-        const con = expression.$with || "&&";
-        if (matchList.length === 0) { throw new Error("TypeOrm: can't find *"); }   //TBD: we allow but just to avoid error
-        if (matchList.length === 1) { return matchList[0]; }
-        else {
-            return ((con === "&&") ? And(...matchList) : Or(...matchList));
-        }
+        // if (matchList.length === 0) { throw new Error("TypeOrm: can't find *"); }   //TBD: we allow but just to avoid error
+        // if (matchList.length === 1) { return matchList[0]; }
+        // else if (matchList.length >= 2) {
+        //     let ke = matchList as FindOperator<T>[];
+        //     return ((condition === "&&") ? And(...ke) as any : Or(...ke) as any);
+        // } else {
+        //     throw new Error("TypeOrm: shouldn't be here.");
+        // }
     }
 
     async lookup<T>(qNode: QueryNode<T>): Promise<DataNode<any>[]> {
-        let ormQuery = this.query(qNode.expression);
 
+        // console.log("===== lookup =====");
+        // console.log(qNode.expression);
+        
         if (!this.ds.isInitialized) {
-            this.ds.initialize();
+            await this.ds.initialize();
         }
         const repo = this.ds.getRepository(qNode.$ns);
-        let list = await repo.find({
-            where: ormQuery
-        });
+
+        let queryBuilder = repo.createQueryBuilder();
+        let queryRtn = this.query<T>(0, queryBuilder, qNode.expression);
+
+        // console.warn(ormQuery);
+        let list = await queryRtn.queryBuilder.getMany();
+
+        // AND 逻辑：直接放一个对象里
+        // repo.find({
+        //     where: {
+        //         orderid: "o3",
+        //         id: "p3-2"
+        //     }
+        // });
+
+        // // 如果是 OR 逻辑：用数组
+        // repo.find({
+        //     where: [
+        //         { orderid: "o3" },
+        //         { id: "p3-2" }
+        //     ]
+        // });
         
         //convert to data node
-        let rtn = list.map(m => {
+        let rtn: DataNode<T>[] = list.map(m => {
             let node = new DataNode<T>();
             node.$fromQN = qNode;
             node.$ns = qNode.$ns;

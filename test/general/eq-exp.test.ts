@@ -105,6 +105,16 @@ describe("EQ Expression Test", async function () {
 
             strictEqual(nodes.length, 0);
         });
+    
+        test("4.1", async () => {
+            let nodes = await kodo.explore<Payment>({
+                $id: "startup-eq-4.1",
+                $ns: "Payment",
+                expression: p => p.orderid === "o3" && p.id !== "p3-3"
+            });
+    
+            strictEqual(nodes.length, 6);
+        });
 
         test("5", async () => {
             let nodes = await kodo.explore<Payment>({
