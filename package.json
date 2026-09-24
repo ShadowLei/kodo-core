@@ -19,7 +19,7 @@
     "build:js": "bun build --production ./src/index.ts --outdir ./dist",
     "build:types": "tsc -p tsconfig.types.json",
     "build": "bun run build:js && bun run build:types",
-    "test:ns": "bun test ./test/orm/*.test.ts",
+    "test:ns": "bun test ./test/orm/complex.test.ts",
     "test": "bun test ./test/**/*.test.ts"
   },
   "keywords": [

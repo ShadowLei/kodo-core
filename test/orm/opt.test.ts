@@ -1,0 +1,322 @@
+import { Kodo } from "../../src";
+import { Order, Payment } from "../_module";
+import { initKodoTestExpressionData, initKodoTestData } from "./_orm_link";
+import { strictEqual, verifyIds } from "../_common";
+import { describe, test } from 'bun:test';
+
+let kodo = new Kodo("my-test-net");
+
+initKodoTestData(kodo);
+
+describe("Cache Test", async function () {
+    test("1", async () => {
+        kodo.setOption({ cache: false });
+        let nodes = await kodo.explore<Payment>({
+            $id: "startup",
+            $ns: "Payment",
+            expression: {
+                $where: [{
+                    $where: [
+                        {
+                            id: {
+                                $op: "==",
+                                $val: null
+                            }
+                        }
+                    ]
+                }]
+            }
+        });
+
+        //printNodes(nodes);
+
+        strictEqual(nodes.length, 0);
+    });
+
+    test("2", async () => {
+        let nodes = await kodo.explore<Payment>({
+            $id: "startup",
+            $ns: "Payment",
+            expression: {
+                $where: [{
+                    $where: [
+                        {
+                            operator: {
+                                $op: "!=",
+                                $val: null
+                            }
+                        }
+                    ]
+                }]
+            }
+        });
+
+        strictEqual(nodes.length, 0);
+    });
+
+    test("3", async () => {
+        let nodes = await kodo.explore<Payment>({
+            $id: "startup",
+            $ns: "Payment",
+            expression: {
+                $where: [{
+                    $where: [
+                        {
+                            operator: {
+                                $op: "!=",
+                                $val: null
+                            }
+                        }
+                    ]
+                }]
+            }
+        });
+
+        strictEqual(nodes.length, 0);
+    });
+
+    test("4", async () => {
+        let nodes = await kodo.explore<Payment>({
+            $id: "startup",
+            $ns: "Order",
+            expression: {
+                $where: [{
+                    $with: "||",
+                    $where: [
+                        {
+                            operator: {
+                                $op: "!=",
+                                $val: null
+                            }
+                        }
+                    ]
+                }]
+            }
+        });
+
+        //printNodes(nodes);
+
+        strictEqual(nodes.length, 8);
+    });
+
+    test("5", async () => {
+        let nodes = await kodo.explore<Payment>({
+            $id: "startup",
+            $ns: "Order",
+            expression: {
+                $where: [{
+                    $with: "||",
+                    $where: [
+                        {
+                            operator: {
+                                $op: "!=",
+                                $val: null
+                            }
+                        }
+                    ]
+                }]
+            }
+        });
+
+        strictEqual(nodes.length, 8);
+    });
+});
+
+describe("Recursion Test", async function () {
+    test("1", async () => {
+        kodo.setOption({ recursion: false });
+        //kodo.setOption({ recursion: false });
+        let nodes = await kodo.explore<Payment>({
+            $id: "startup",
+            $ns: "Payment",
+            expression: {
+                $where: [{
+                    $where: [
+                        {
+                            id: {
+                                $op: "==",
+                                $val: null
+                            }
+                        }
+                    ]
+                }]
+            }
+        });
+
+        //printNodes(nodes);
+
+        strictEqual(nodes.length, 0);
+    });
+
+    test("2", async () => {
+        let nodes = await kodo.explore<Payment>({
+            $id: "startup",
+            $ns: "Payment",
+            expression: {
+                $where: [{
+                    $where: [
+                        {
+                            operator: {
+                                $op: "!=",
+                                $val: null
+                            }
+                        }
+                    ]
+                }]
+            }
+        });
+
+        strictEqual(nodes.length, 0);
+    });
+
+    test("3", async () => {
+        let nodes = await kodo.explore<Payment>({
+            $id: "startup",
+            $ns: "Payment",
+            expression: {
+                $where: [{
+                    $where: [
+                        {
+                            operator: {
+                                $op: "!=",
+                                $val: null
+                            }
+                        }
+                    ]
+                }]
+            }
+        });
+
+        strictEqual(nodes.length, 0);
+    });
+
+    test("4", async () => {
+        let nodes = await kodo.explore<Payment>({
+            $id: "startup",
+            $ns: "Order",
+            expression: {
+                $where: [{
+                    $with: "||",
+                    $where: [
+                        {
+                            operator: {
+                                $op: "!=",
+                                $val: null
+                            }
+                        }
+                    ]
+                }]
+            }
+        });
+
+        strictEqual(nodes.length, 6);
+    });
+});
+
+describe("TierLimit Test", async function () {
+    test("1", async () => {
+        kodo.setOption({ cache: false, recursion: true, tierLimit: 1 });
+        let nodes = await kodo.explore<Payment>({
+            $id: "startup-eq-1",
+            $ns: "Payment",
+            expression: {
+                amount: {
+                    $op: "===",
+                    $val: 2500
+                }
+            }
+        });
+
+        strictEqual(nodes.length, 1);
+    });
+
+    test("2", async () => {
+        kodo.setOption({ cache: false, recursion: true, tierLimit: 10 });
+        let nodes = await kodo.explore<Payment>({
+            $id: "startup-eq-1",
+            $ns: "Payment",
+            expression: {
+                amount: {
+                    $op: "===",
+                    $val: 2500
+                }
+            }
+        });
+
+        strictEqual(nodes.length, 6);
+    });
+
+    test("3", async () => {
+        kodo.setOption({ cache: false, recursion: true, tierLimit: 2 });
+        let nodes = await kodo.explore<Payment>({
+            $id: "startup-eq-2",
+            $ns: "Payment",
+            expression: {
+                orderid: "o3",
+                id: {
+                    $op: "===",
+                    $val: "p3-2"
+                }
+            }
+        });
+
+        strictEqual(nodes.length, 3);
+    });
+
+    test("4", async () => {
+        kodo.setOption({ cache: false, recursion: true, tierLimit: 3 });
+        let nodes = await kodo.explore<Payment>({
+            $id: "startup-eq-2",
+            $ns: "Payment",
+            expression: {
+                orderid: "o3",
+                id: {
+                    $op: "===",
+                    $val: "p3-2"
+                }
+            }
+        });
+
+        //printNodes(nodes);
+
+        strictEqual(nodes.length, 5);
+    });
+
+    test("5", async () => {
+        kodo.setOption({ cache: false, recursion: true, tierLimit: 10 });
+        let nodes = await kodo.explore<Payment>({
+            $id: "startup-eq-2",
+            $ns: "Payment",
+            expression: {
+                orderid: "o3",
+                id: {
+                    $op: "===",
+                    $val: "p3-2"
+                }
+            }
+        });
+
+        //p3-2 | o3 | p3-1 | pd3-1 | oo3-1 | pd3-2
+        //printNodes(nodes);
+
+        strictEqual(nodes.length, 6);
+
+        let o1 = nodes.find(m => m.$ns === "Order" && m.$id === "o3");
+        strictEqual(!!o1, true);
+
+        let p1 = nodes.find(m => m.$ns === "Payment" && m.$id === "p3-1");
+        strictEqual(!!p1, true);
+        let p2 = nodes.find(m => m.$ns === "Payment" && m.$id === "p3-2");
+        strictEqual(!!p2, true);
+
+        let pd1 = nodes.find(m => m.$ns === "PaymentDetail" && m.$id === "pd3-1");
+        strictEqual(!!pd1, true);
+        let pd2 = nodes.find(m => m.$ns === "PaymentDetail" && m.$id === "pd3-2");
+        strictEqual(!!pd2, true);
+
+        let oo = nodes.find(m => m.$ns === "OrderOwner" && m.$id === "oo3-1");
+        strictEqual(!!oo, true);
+
+        //verifyIds(pd1, ["pd3-1", "p3-1", "o3", "p3-2"], "startup-eq-2");
+    });
+});

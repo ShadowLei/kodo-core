@@ -13,7 +13,7 @@ function constructTypeOrm(): TypeOrmProvider {
         password: "abc!@#123",
         database: "kodo_test",
         synchronize: false,
-        logging: false,
+        logging: true,
         entities: [Order, Payment, PaymentDetail, OrderOwner],
         subscribers: [],
     });

@@ -3,7 +3,7 @@ import { QueryNode } from "../nodes/queryNode";
 import { QueryExpression, ROperator, BOperator, isQueryExpressionKey, QueryOn, QueryOnValue, QueryExpressionObject, isQueryOnValue } from "../expressions";
 import { IDataProvider } from "./iDataProvider";
 import { generateHashCode, isNullOrUndefined } from "../utils";
-import { And, Between, DataSource, Equal, FindOperator, FindOptionsWhere, ILike, In, IsNull, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Not, ObjectLiteral, Or, SelectQueryBuilder } from "typeorm";
+import { And, Between, Brackets, DataSource, Equal, FindOperator, FindOptionsWhere, ILike, In, IsNull, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Not, ObjectLiteral, Or, Repository, SelectQueryBuilder, WhereExpressionBuilder } from "typeorm";
 
 
 export class TypeOrmProvider implements IDataProvider {
@@ -82,9 +82,9 @@ export class TypeOrmProvider implements IDataProvider {
         }
     }
 
-    private query<T>(refIdx: number, queryBuilder: SelectQueryBuilder<ObjectLiteral>, expression: QueryExpression<T>): {
+    private query<T>(refIdx: number, queryBuilder: WhereExpressionBuilder, expression: QueryExpression<T>): {
         refIdx: number,
-        queryBuilder: SelectQueryBuilder<ObjectLiteral>
+        queryBuilder: WhereExpressionBuilder
     } {
         if (typeof expression === "function") {
             throw new Error("TypeOrm Express Match: Not implement yet.");
@@ -93,7 +93,9 @@ export class TypeOrmProvider implements IDataProvider {
         // console.log("===== ======")
         // console.log(expression);
 
-        const isAnd = (expression.$with || "&&");
+        expression.$with ||= "&&";
+        const isAnd = (expression.$with == "&&");
+        // console.log(isAnd);
 
         //1. find on data
         let dataRtn = this.queryOnData<T>(++refIdx, expression);
@@ -107,16 +109,25 @@ export class TypeOrmProvider implements IDataProvider {
             }
         }
 
-        let matchList: {exp: string, val: ObjectLiteral}[] = [];
-
         //2. find on sub-expression-where
         const where = expression.$where || [];
-        for (const whereSub of where) {
-            if (typeof whereSub === "function") { throw new Error("TypeOrm Express Condition: Not implement yet."); }
+        if (where.length > 0) {
+            let bracket = new Brackets((qb) => {
+                // let theQB = qb;
+                for (const whereSub of where) {
+                    if (typeof whereSub === "function") { throw new Error("TypeOrm Express Condition: Not implement yet."); }
 
-            let queryRtn = this.query<T>(refIdx, queryBuilder, whereSub);
-            refIdx = queryRtn.refIdx;
-            queryBuilder = queryRtn.queryBuilder;
+                    let queryRtn = this.query<T>(refIdx, qb, whereSub);
+
+                    refIdx = queryRtn.refIdx;
+                }
+            });
+
+            if (isAnd) {
+                queryBuilder = queryBuilder.andWhere(bracket);
+            } else {
+                queryBuilder = queryBuilder.orWhere(bracket);
+            }
         }
 
         return {
@@ -143,30 +154,13 @@ export class TypeOrmProvider implements IDataProvider {
         if (!this.ds.isInitialized) {
             await this.ds.initialize();
         }
-        const repo = this.ds.getRepository(qNode.$ns);
-
+        let repo = this.ds.getRepository(qNode.$ns);
         let queryBuilder = repo.createQueryBuilder();
         let queryRtn = this.query<T>(0, queryBuilder, qNode.expression);
 
         // console.warn(ormQuery);
-        let list = await queryRtn.queryBuilder.getMany();
+        let list = await (queryRtn.queryBuilder as SelectQueryBuilder<any>).getMany();
 
-        // AND 逻辑：直接放一个对象里
-        // repo.find({
-        //     where: {
-        //         orderid: "o3",
-        //         id: "p3-2"
-        //     }
-        // });
-
-        // // 如果是 OR 逻辑：用数组
-        // repo.find({
-        //     where: [
-        //         { orderid: "o3" },
-        //         { id: "p3-2" }
-        //     ]
-        // });
-        
         //convert to data node
         let rtn: DataNode<T>[] = list.map(m => {
             let node = new DataNode<T>();
