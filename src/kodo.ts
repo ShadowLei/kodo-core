@@ -11,6 +11,8 @@ export interface KodoOption extends ExploreOption {
     //TODO here: no useful
     cache: boolean;
     recursion: boolean;
+    //每次查询强制 limit，防止客户编写错误查询导致大量数据返回
+    limit: number;
 }
 
 //It's bulky, but it's powerful
@@ -25,7 +27,8 @@ export class Kodo {
         let defaultOpt: KodoOption = {
             cache: false,
             recursion: true,
-            tierLimit: 0
+            tierLimit: 0,
+            limit: 10
         };
 
         let theOpt = Object.assign(defaultOpt, opt || {});
@@ -75,6 +78,9 @@ export class Kodo {
         if (!provider) {
             throw new Error(`No data-provider serve the ns: ${startup.$ns}`);
         }
+
+        //强制 limit，防止错误查询返回大量数据
+        startup.$limit = this.opt.limit;
 
         //1.1 query
         let founds = await provider.lookup(startup);

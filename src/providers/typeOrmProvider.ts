@@ -158,8 +158,14 @@ export class TypeOrmProvider implements IDataProvider {
         let queryBuilder = repo.createQueryBuilder();
         let queryRtn = this.query<T>(0, queryBuilder, qNode.expression);
 
+        //apply forced limit
+        let qb = queryRtn.queryBuilder as SelectQueryBuilder<any>;
+        if (qNode.$limit && qNode.$limit > 0) {
+            qb = qb.take(qNode.$limit);
+        }
+
         // console.warn(ormQuery);
-        let list = await (queryRtn.queryBuilder as SelectQueryBuilder<any>).getMany();
+        let list = await qb.getMany();
 
         //convert to data node
         let rtn: DataNode<T>[] = list.map(m => {

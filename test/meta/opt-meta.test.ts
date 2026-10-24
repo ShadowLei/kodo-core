@@ -411,3 +411,33 @@ describe("recursion=false + tierLimit 组合", () => {
         strictEqual(nodes.length, 5);
     });
 });
+
+describe("limit 强制限制查询数量", () => {
+    test("默认 limit=10，数据量 < 10 时返回全部", async () => {
+        let k = new Kodo("l-default", { cache: false, tierLimit: 1 });
+        initKodoTestData(k);
+        let nodes = await k.explore<Payment>({ $ns: "payment", expression: { orderid: "xxx" } });
+        strictEqual(nodes.length, 2);
+    });
+
+    test("limit=1 限制返回 1 条", async () => {
+        let k = new Kodo("l-1", { cache: false, tierLimit: 1, limit: 1 });
+        initKodoTestData(k);
+        let nodes = await k.explore<Payment>({ $ns: "payment", expression: { orderid: "xxx" } });
+        strictEqual(nodes.length, 1);
+    });
+
+    test("limit=100 大于数据量时返回全部", async () => {
+        let k = new Kodo("l-100", { cache: false, tierLimit: 1, limit: 100 });
+        initKodoTestData(k);
+        let nodes = await k.explore<Payment>({ $ns: "payment", expression: { orderid: "xxx" } });
+        strictEqual(nodes.length, 2);
+    });
+
+    test("limit=2 限制 IN 查询返回 2 条", async () => {
+        let k = new Kodo("l-in", { cache: false, tierLimit: 1, limit: 2 });
+        initKodoTestData(k);
+        let nodes = await k.explore<Order>({ $ns: "order", expression: { id: { $op: "IN", $val: ["o1", "o2", "o3", "o4"] } } });
+        strictEqual(nodes.length, 2);
+    });
+});

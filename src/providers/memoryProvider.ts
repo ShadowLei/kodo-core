@@ -197,6 +197,11 @@ export class MemoryProvider implements IDataProvider {
             else { return rtn; }
         });
 
+        //apply forced limit
+        if (qNode.$limit && qNode.$limit > 0) {
+            list = list.slice(0, qNode.$limit);
+        }
+
         //convert to data node
         let rtn = list.map(m => {
             let node = new DataNode<T>();

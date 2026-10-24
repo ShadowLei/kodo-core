@@ -330,10 +330,21 @@ export class DDBProvider implements IDataProvider {
         const pkVals = Array.from(new Set(keyInfo.pkVals));
 
         // `IN` on the partition key expands into several parallel queries (still query, not scan)
-        const inputs = pkVals.map(v => this.buildQueryInput(table, root, keyInfo, v));
+        const inputs = pkVals.map(v => {
+            const input = this.buildQueryInput(table, root, keyInfo, v);
+            // apply forced limit
+            if (qNode.$limit && qNode.$limit > 0) {
+                input.Limit = qNode.$limit;
+            }
+            return input;
+        });
         const results = await Promise.all(inputs.map(i => this.client.send(new QueryCommand(i))));
 
-        const items = results.flatMap(r => r.Items || []);
+        let items = results.flatMap(r => r.Items || []);
+        // 合并后总体 limit，确保 IN 多 pk 时总共不超过 limit
+        if (qNode.$limit && qNode.$limit > 0) {
+            items = items.slice(0, qNode.$limit);
+        }
 
         return items.map(m => {
             const node = new DataNode<T>();
