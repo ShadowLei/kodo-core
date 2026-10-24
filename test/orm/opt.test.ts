@@ -320,3 +320,94 @@ describe("TierLimit Test", async function () {
         //verifyIds(pd1, ["pd3-1", "p3-1", "o3", "p3-2"], "startup-eq-2");
     });
 });
+
+describe("recursion=false 单向查询 (namespace 只查询一次)", () => {
+    test("从 Order 出发，PaymentDetail 只查询一次 (pd3-2 缺失)", async () => {
+        let k = new Kodo("r-o", { cache: false, recursion: false, tierLimit: 10 });
+        initKodoTestData(k);
+        let nodes = await k.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
+
+        strictEqual(nodes.length, 5);
+        strictEqual(!!nodes.find(m => m.$ns === "Order" && m.$id === "o3"), true);
+        strictEqual(!!nodes.find(m => m.$ns === "Payment" && m.$id === "p3-1"), true);
+        strictEqual(!!nodes.find(m => m.$ns === "Payment" && m.$id === "p3-2"), true);
+        strictEqual(!!nodes.find(m => m.$ns === "OrderOwner" && m.$id === "oo3-1"), true);
+        strictEqual(!!nodes.find(m => m.$ns === "PaymentDetail" && m.$id === "pd3-1"), true);
+        // pd3-2 因 PaymentDetail 已查询过被跳过
+        strictEqual(!!nodes.find(m => m.$ns === "PaymentDetail" && m.$id === "pd3-2"), false);
+    });
+
+    test("从 Payment 出发，同样 5 节点 (pd3-2 缺失)", async () => {
+        let k = new Kodo("r-p", { cache: false, recursion: false, tierLimit: 10 });
+        initKodoTestData(k);
+        let nodes = await k.explore<Payment>({ $ns: "Payment", expression: { orderid: "o3" } });
+        strictEqual(nodes.length, 5);
+    });
+});
+
+describe("tierLimit 边界 (recursion=true, 从 Order 出发)", () => {
+    test("tierLimit=1 只加载起始层", async () => {
+        let k = new Kodo("t1", { cache: false, recursion: true, tierLimit: 1 });
+        initKodoTestData(k);
+        let nodes = await k.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
+        strictEqual(nodes.length, 1);
+    });
+
+    test("tierLimit=2 加载到 payment/owner 层", async () => {
+        let k = new Kodo("t2", { cache: false, recursion: true, tierLimit: 2 });
+        initKodoTestData(k);
+        let nodes = await k.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
+        strictEqual(nodes.length, 4);
+    });
+
+    test("tierLimit=3 加载完整关联 (等于图深度)", async () => {
+        let k = new Kodo("t3", { cache: false, recursion: true, tierLimit: 3 });
+        initKodoTestData(k);
+        let nodes = await k.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
+        strictEqual(nodes.length, 6);
+    });
+
+    test("tierLimit=4 超过图深度 (反向去重，仍 6 节点)", async () => {
+        let k = new Kodo("t4", { cache: false, recursion: true, tierLimit: 4 });
+        initKodoTestData(k);
+        let nodes = await k.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
+        strictEqual(nodes.length, 6);
+    });
+
+    test("tierLimit=0 默认不限制 (仍 6 节点)", async () => {
+        let k = new Kodo("t0", { cache: false, recursion: true, tierLimit: 0 });
+        initKodoTestData(k);
+        let nodes = await k.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
+        strictEqual(nodes.length, 6);
+    });
+});
+
+describe("recursion=false + tierLimit 组合", () => {
+    test("tierLimit=1", async () => {
+        let k = new Kodo("rt1", { cache: false, recursion: false, tierLimit: 1 });
+        initKodoTestData(k);
+        let nodes = await k.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
+        strictEqual(nodes.length, 1);
+    });
+
+    test("tierLimit=2", async () => {
+        let k = new Kodo("rt2", { cache: false, recursion: false, tierLimit: 2 });
+        initKodoTestData(k);
+        let nodes = await k.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
+        strictEqual(nodes.length, 4);
+    });
+
+    test("tierLimit=3", async () => {
+        let k = new Kodo("rt3", { cache: false, recursion: false, tierLimit: 3 });
+        initKodoTestData(k);
+        let nodes = await k.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
+        strictEqual(nodes.length, 5);
+    });
+
+    test("tierLimit=10 (足够大，仍 5 节点)", async () => {
+        let k = new Kodo("rt10", { cache: false, recursion: false, tierLimit: 10 });
+        initKodoTestData(k);
+        let nodes = await k.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
+        strictEqual(nodes.length, 5);
+    });
+});
