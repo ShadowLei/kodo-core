@@ -1,6 +1,6 @@
 {
   "name": "kodo-core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "Shadow Lei",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
