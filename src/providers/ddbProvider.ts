@@ -146,11 +146,11 @@ export class DDBProvider implements IDataProvider {
                 if (c.attr === table.pk) {
                     ctx.pkFound = true;
                     if (childAndBound) {
-                        if (c.op === "==" || c.op === "===") {
+                        if ((c.op === "==" || c.op === "===") && !isNullOrUndefined(c.val)) {
                             ctx.pkVals = ctx.pkVals || [];
                             ctx.pkVals.push(c.val);
                             ctx.consumed.add(c.id);
-                        } else if (c.op === "IN" && Array.isArray(c.val)) {
+                        } else if (c.op === "IN" && Array.isArray(c.val) && c.val.length > 0) {
                             ctx.pkVals = ctx.pkVals || [];
                             ctx.pkVals.push(...c.val);
                             ctx.consumed.add(c.id);
@@ -164,6 +164,10 @@ export class DDBProvider implements IDataProvider {
                     if (childAndBound && this.isKeyOp(c.op)) {
                         ctx.skConds.push({ op: this.normalizeKeyOp(c.op), val: c.val });
                         ctx.consumed.add(c.id);
+                    } else {
+                        // DynamoDB: sort key 只能作为 key condition 用 =/>/>=/</<=，
+                        // 不能取反(!=) / IN / 出现在 OR 中 / 作为 filter。
+                        throw new Error(`DDB: sort key '${table.sk}' only supports =, >, >=, <, <= as a key condition and cannot be negated or OR-ed.`);
                     }
                 }
             } else {

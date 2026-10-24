@@ -54,12 +54,12 @@ aws dynamodb create-table \
 # o1
 aws dynamodb put-item \
   --table-name Order \
-  --item '{"id":{"S":"o1"},"logid":{"S":"111"},"operator":{"NULL":true}}'
+  --item '{"id":{"S":"o1"},"logid":{"S":"111"}}'
 
 # o2
 aws dynamodb put-item \
   --table-name Order \
-  --item '{"id":{"S":"o2"},"logid":{"S":"shadow"},"operator":{"NULL":true}}'
+  --item '{"id":{"S":"o2"},"logid":{"S":"shadow"}}'
 
 # o3
 aws dynamodb put-item \
