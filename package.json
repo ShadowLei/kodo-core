@@ -20,6 +20,8 @@
     "build:types": "tsc -p tsconfig.types.json",
     "build": "bun run build:js && bun run build:types",
     "test:ns": "bun test ./test/orm/complex.test.ts",
+    "test:db": "bun test ./test/db/db.test.ts",
+    "test:ddb": "bun test ./test/ddb/*.test.ts",
     "test": "bun test ./test/**/*.test.ts"
   },
   "keywords": [
@@ -31,6 +33,8 @@
   "module": "index.ts",
   "type": "module",
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1156.0",
+    "@aws-sdk/lib-dynamodb": "^3.1156.0",
     "@duckdb/node-api": "^1.5.5-r.4",
     "@types/pg": "^8.23.1",
     "pg": "^8.23.0",

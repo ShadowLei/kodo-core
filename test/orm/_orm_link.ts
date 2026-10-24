@@ -4,7 +4,7 @@ import { DataNode, Kodo, MemoryProvider, MetaNodeTranslator, NodeTranslator } fr
 import { DataSource } from "typeorm";
 import { TypeOrmProvider } from "../../src/providers/typeOrmProvider";
 
-function constructTypeOrm(): TypeOrmProvider {
+export function getDS() {
     let ds: DataSource = new DataSource({
         type: "postgres",
         host: "localhost",
@@ -17,6 +17,11 @@ function constructTypeOrm(): TypeOrmProvider {
         entities: [Order, Payment, PaymentDetail, OrderOwner],
         subscribers: [],
     });
+    return ds;
+}
+
+function constructTypeOrm(): TypeOrmProvider {
+    let ds = getDS();
     let mp = new TypeOrmProvider(ds);
     return mp;
 }

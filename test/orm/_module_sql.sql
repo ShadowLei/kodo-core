@@ -12,6 +12,7 @@ GRANT ALL PRIVILEGES ON "order" TO kodo;
 GRANT ALL PRIVILEGES ON "payment" TO kodo;
 GRANT ALL PRIVILEGES ON "payment-detail" TO kodo;
 GRANT ALL PRIVILEGES ON "owner" TO kodo;
+GRANT ALL PRIVILEGES ON "test" TO kodo;
 
 -- 2.
 > psql -U kodo -h localhost -d kodo_test
@@ -47,6 +48,12 @@ create table "owner" (
     orderid varchar(64),
    "name" varchar(255),
     ts timestamp default now()
+);
+
+create table "test" (
+    id varchar(64) primary key,
+    name varchar(255) not null,
+    ts timestamp null
 );
 
 INSERT INTO table_name (column1, column2, column3)
