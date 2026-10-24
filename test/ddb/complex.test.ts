@@ -141,3 +141,109 @@ describe("同字段多条件 (amount > && amount <)", () => {
         strictEqual(nodes.length, 2);
     });
 });
+
+describe("多层嵌套查询 (参考 orm complex)", () => {
+    // 参考 orm complex：顶层 IN + 顶层条件 + $where(含 $with) + 再嵌套 $where
+    test("3 层嵌套 + OR : 顶层 IN + $where[OR + 嵌套] (匹配)", async () => {
+        let nodes = await flatKodo.explore<Order>({
+            $ns: "Order",
+            expression: {
+                id: { $op: "IN", $val: ["o1", "o2", "o3"] },
+                logid: "P12345",
+                $where: [{
+                    $with: "||",
+                    logid: "xxx",
+                    operator: "Shadow",
+                    $where: [{ logid: "P12345", operator: "Shadow" }]
+                }]
+            }
+        });
+
+        // 只有 o3：logid=P12345 且 (operator=Shadow OR (logid=P12345 && operator=Shadow))
+        strictEqual(nodes.length, 1);
+        strictEqual(!!nodes.find(m => m.$id === "o3"), true);
+    });
+
+    test("3 层嵌套 + AND : 顶层 IN + $where[AND + 嵌套] (不匹配)", async () => {
+        let nodes = await flatKodo.explore<Order>({
+            $ns: "Order",
+            expression: {
+                id: { $op: "IN", $val: ["o1", "o2", "o4"] },
+                logid: "P12345",
+                $where: [{
+                    $with: "&&",
+                    logid: "xxx",
+                    operator: "Shadow",
+                    $where: [{ logid: "P12345", operator: "Allen" }]
+                }]
+            }
+        });
+
+        // o4 满足 logid=P12345 但 $where 内 logid=xxx 不满足 → AND 失败
+        strictEqual(nodes.length, 0);
+    });
+
+    test("4 层深层嵌套 (纯 $where)", async () => {
+        let nodes = await flatKodo.explore<Order>({
+            $ns: "Order",
+            expression: {
+                id: "o3",
+                $where: [{ $where: [{ $where: [{ logid: "P12345" }] }] }]
+            }
+        });
+
+        strictEqual(nodes.length, 1);
+    });
+
+    test("OR 内嵌 AND 分组", async () => {
+        let nodes = await flatKodo.explore<Order>({
+            $ns: "Order",
+            expression: {
+                id: "o3",
+                $where: [{
+                    $with: "||",
+                    logid: "xxx",
+                    $where: [{ $with: "&&", operator: "Shadow", logid: "P12345" }]
+                }]
+            }
+        });
+
+        // o3 AND (logid=xxx OR (operator=Shadow AND logid=P12345))
+        strictEqual(nodes.length, 1);
+    });
+
+    test("顶层 IN + 嵌套 OR (完整递归)", async () => {
+        let nodes = await kodo.explore<Order>({
+            $ns: "Order",
+            expression: {
+                id: { $op: "IN", $val: ["o3", "o4"] },
+                $where: [{
+                    $with: "||",
+                    operator: "Shadow",
+                    $where: [{ logid: "P12345" }]
+                }]
+            }
+        });
+
+        // o3(operator=Shadow) 与 o4(logid=P12345) 都匹配，完整递归共 8 个节点
+        strictEqual(nodes.length, 8);
+    });
+
+    test("pk + sort key + 深层嵌套 OR filter", async () => {
+        let nodes = await flatKodo.explore<Payment>({
+            $ns: "Payment",
+            expression: {
+                orderid: "o3",
+                id: { $op: ">=", $val: "p3-1" },
+                $where: [{
+                    $with: "||",
+                    amount: { $op: ">=", $val: 2000 },
+                    $where: [{ amount: { $op: "<", $val: 1500 } }]
+                }]
+            }
+        });
+
+        // p3-1(amount=1300 < 1500) 与 p3-2(amount=2500 >= 2000) 都命中 OR
+        strictEqual(nodes.length, 2);
+    });
+});
