@@ -105,7 +105,7 @@ describe("Recursion Test", async function () {
             expression: o => true || o.operator != null
         });
 
-        strictEqual(nodes.length, 6);
+        strictEqual(nodes.length, 11);
     });
 });
 

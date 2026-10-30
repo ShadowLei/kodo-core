@@ -71,16 +71,16 @@ export class TypeOrmProvider implements IDataProvider {
         };
     }
 
-    private mergeQueryItems<T>(matchList: FindOptionsWhere<T>[], condition: BOperator): FindOptionsWhere<T> {
-        if (matchList.length === 0) { throw new Error("TypeOrm: can't find *"); }   //TBD: we allow but just to avoid error
-        if (matchList.length === 1) { return matchList[0]; }
-        else if (matchList.length >= 2) {
-            let ke = matchList as FindOperator<T>[];
-            return ((condition === "&&") ? And(...ke) as any : Or(...ke) as any);
-        } else {
-            throw new Error("TypeOrm: shouldn't be here.");
-        }
-    }
+    // private mergeQueryItems<T>(matchList: FindOptionsWhere<T>[], condition: BOperator): FindOptionsWhere<T> {
+    //     if (matchList.length === 0) { throw new Error("TypeOrm: can't find *"); }   //TBD: we allow but just to avoid error
+    //     if (matchList.length === 1) { return matchList[0]; }
+    //     else if (matchList.length >= 2) {
+    //         let ke = matchList as FindOperator<T>[];
+    //         return ((condition === "&&") ? And(...ke) as any : Or(...ke) as any);
+    //     } else {
+    //         throw new Error("TypeOrm: shouldn't be here.");
+    //     }
+    // }
 
     private query<T>(refIdx: number, queryBuilder: WhereExpressionBuilder, expression: QueryExpression<T>): {
         refIdx: number,

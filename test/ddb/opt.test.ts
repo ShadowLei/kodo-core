@@ -67,35 +67,35 @@ describe("tierLimit 递归深度 (recursion=true, 从 Payment 出发)", () => {
     });
 });
 
-describe("recursion=false 单向查询 (namespace 只查询一次)", () => {
-    test("从 Order 出发，PaymentDetail 只查询一次 (pd3-2 缺失)", async () => {
+describe("recursion=false 沿 fromDN 链去重 (重复 namespace 即停止)", () => {
+    test("从 Order 出发，PaymentDetail 按路径各查询一次 (pd3-2 存在)", async () => {
         let k = new Kodo("r-o", { cache: false, recursion: false, tierLimit: 10 });
         initKodoTestData(k);
         let nodes = await k.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
 
-        strictEqual(nodes.length, 5);
+        strictEqual(nodes.length, 6);
         strictEqual(!!nodes.find(m => m.$ns === "Order" && m.$id === "o3"), true);
         strictEqual(!!nodes.find(m => m.$ns === "Payment" && m.$id === "p3-1"), true);
         strictEqual(!!nodes.find(m => m.$ns === "Payment" && m.$id === "p3-2"), true);
         strictEqual(!!nodes.find(m => m.$ns === "OrderOwner" && m.$id === "oo3-1"), true);
         strictEqual(!!nodes.find(m => m.$ns === "PaymentDetail" && m.$id === "pd3-1"), true);
-        // pd3-2 因 PaymentDetail 已查询过被跳过
-        strictEqual(!!nodes.find(m => m.$ns === "PaymentDetail" && m.$id === "pd3-2"), false);
+        // pd3-2 通过 p3-2 的另一条路径被查询
+        strictEqual(!!nodes.find(m => m.$ns === "PaymentDetail" && m.$id === "pd3-2"), true);
     });
 
-    test("从 Payment 出发，同样 5 节点 (pd3-2 缺失)", async () => {
+    test("从 Payment 出发，同样 6 节点", async () => {
         let k = new Kodo("r-p", { cache: false, recursion: false, tierLimit: 10 });
         initKodoTestData(k);
         let nodes = await k.explore<Payment>({ $ns: "Payment", expression: { orderid: "o3" } });
-        strictEqual(nodes.length, 5);
+        strictEqual(nodes.length, 6);
     });
 
     test("recursion=false 避免反向链接异常 (tierLimit 足够大也不触发 scan)", async () => {
         let k = new Kodo("r-safe", { cache: false, recursion: false, tierLimit: 10 });
         initKodoTestData(k);
-        // 反向链接 PaymentDetail->Payment 被 existNS 挡住，不抛异常
+        // 反向链接 PaymentDetail->Payment 被 fromDN 链去重挡住，不抛异常
         let nodes = await k.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
-        strictEqual(nodes.length, 5);
+        strictEqual(nodes.length, 6);
     });
 });
 
@@ -118,14 +118,14 @@ describe("recursion=false + tierLimit 组合", () => {
         let k = new Kodo("rt-3", { cache: false, recursion: false, tierLimit: 3 });
         initKodoTestData(k);
         let nodes = await k.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
-        strictEqual(nodes.length, 5);
+        strictEqual(nodes.length, 6);
     });
 
-    test("tierLimit=10 (足够大，仍只 5 节点)", async () => {
+    test("tierLimit=10 (足够大，仍只 6 节点)", async () => {
         let k = new Kodo("rt-10", { cache: false, recursion: false, tierLimit: 10 });
         initKodoTestData(k);
         let nodes = await k.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
-        strictEqual(nodes.length, 5);
+        strictEqual(nodes.length, 6);
     });
 });
 

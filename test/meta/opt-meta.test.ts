@@ -209,7 +209,7 @@ describe("Recursion Test", async function () {
             }
         });
 
-        strictEqual(nodes.length, 6);
+        strictEqual(nodes.length, 8);
     });
 });
 
@@ -321,27 +321,27 @@ describe("TierLimit Test", async function () {
     });
 });
 
-describe("recursion=false 单向查询 (namespace 只查询一次)", () => {
-    test("从 Order 出发，PaymentDetail 只查询一次 (pd3-2 缺失)", async () => {
+describe("recursion=false 沿 fromDN 链去重 (重复 namespace 即停止)", () => {
+    test("从 Order 出发，PaymentDetail 按路径各查询一次 (pd3-2 存在)", async () => {
         let k = new Kodo("r-o", { cache: false, recursion: false, tierLimit: 10 });
         initKodoTestData(k);
         let nodes = await k.explore<Order>({ $ns: "order", expression: { id: "o3" } });
 
-        strictEqual(nodes.length, 5);
+        strictEqual(nodes.length, 6);
         strictEqual(!!nodes.find(m => m.$ns === "order" && m.$id === "o3"), true);
         strictEqual(!!nodes.find(m => m.$ns === "payment" && m.$id === "p3-1"), true);
         strictEqual(!!nodes.find(m => m.$ns === "payment" && m.$id === "p3-2"), true);
         strictEqual(!!nodes.find(m => m.$ns === "owner" && m.$id === "oo3-1"), true);
         strictEqual(!!nodes.find(m => m.$ns === "payment-detail" && m.$id === "pd3-1"), true);
-        // pd3-2 因 PaymentDetail 已查询过被跳过
-        strictEqual(!!nodes.find(m => m.$ns === "payment-detail" && m.$id === "pd3-2"), false);
+        // pd3-2 通过 p3-2 的另一条路径被查询
+        strictEqual(!!nodes.find(m => m.$ns === "payment-detail" && m.$id === "pd3-2"), true);
     });
 
-    test("从 Payment 出发，同样 5 节点 (pd3-2 缺失)", async () => {
+    test("从 Payment 出发，同样 6 节点", async () => {
         let k = new Kodo("r-p", { cache: false, recursion: false, tierLimit: 10 });
         initKodoTestData(k);
         let nodes = await k.explore<Payment>({ $ns: "payment", expression: { orderid: "o3" } });
-        strictEqual(nodes.length, 5);
+        strictEqual(nodes.length, 6);
     });
 });
 
@@ -401,14 +401,14 @@ describe("recursion=false + tierLimit 组合", () => {
         let k = new Kodo("rt3", { cache: false, recursion: false, tierLimit: 3 });
         initKodoTestData(k);
         let nodes = await k.explore<Order>({ $ns: "order", expression: { id: "o3" } });
-        strictEqual(nodes.length, 5);
+        strictEqual(nodes.length, 6);
     });
 
-    test("tierLimit=10 (足够大，仍 5 节点)", async () => {
+    test("tierLimit=10 (足够大，仍 6 节点)", async () => {
         let k = new Kodo("rt10", { cache: false, recursion: false, tierLimit: 10 });
         initKodoTestData(k);
         let nodes = await k.explore<Order>({ $ns: "order", expression: { id: "o3" } });
-        strictEqual(nodes.length, 5);
+        strictEqual(nodes.length, 6);
     });
 });
 

@@ -60,11 +60,31 @@ export class Kodo {
         this.providers.set(ns, provider);
     }
 
-    private async loopExplore<T>(startup: QueryNode<T>, exlpreOpt: ExploreOption): Promise<void> {
-        if (!this.opt.recursion) {
-            if (this.nodes.existNS(startup.$ns)) {
-                return;
+    private hasNamespaceInPath<T>(startup: QueryNode<T>): boolean {
+        let dn = startup.$fromDN;
+        while (dn) {
+            if (dn.$ns === startup.$ns) {
+                return true;
             }
+            dn = dn.$fromQN?.$fromDN;
+        }
+        return false;
+    }
+
+    private gatherNext(foundList: DataNode<any>[]): QueryNode<any>[] {
+        const qns: QueryNode<any>[] = [];
+        for (const dn of foundList) {
+            for (const t of this.translators) {
+                if (!t.match(dn)) { continue; }
+                qns.push(...t.translate<any, any>(dn));
+            }
+        }
+        return qns;
+    }
+
+    private async loopExplore<T>(startup: QueryNode<T>, exlpreOpt: ExploreOption): Promise<void> {
+        if (!this.opt.recursion && this.hasNamespaceInPath(startup)) {
+            return;
         }
         if (this.opt.tierLimit) {
             if (exlpreOpt.tierLimit >= this.opt.tierLimit) { return; }
@@ -92,45 +112,12 @@ export class Kodo {
             if (added) { foundList.push(f); }
         });
 
-        if (this.opt.recursion) {
-            //find parallel
+        const qns = this.gatherNext(foundList);
 
-            let tasks: Promise<void>[] = [];
-            foundList.map(dn => {
-
-                this.translators.map(t => {
-                    if (!t.match(dn)) { return; }
-
-                    //2. translate
-                    let qn = t.translate<any, any>(dn);
-
-                    qn.map(q => {
-                        tasks.push(this.loopExplore(q, {
-                            tierLimit: exlpreOpt.tierLimit + 1
-                        }));
-                    });
-                });
-            });
-
-            await Promise.all(tasks);
-        } else {
-            //find sequence
-
-            for (const dn of foundList) {
-                for (const t of this.translators) {
-                    if (!t.match(dn)) { continue; }
-
-                    // 2. translate
-                    const qn = await t.translate<any, any>(dn);
-
-                    for (const q of qn) {
-                        await this.loopExplore(q, {
-                            tierLimit: exlpreOpt.tierLimit + 1
-                        });
-                    }
-                }
-            }
-        }
+        //find parallel
+        await Promise.all(qns.map(q => this.loopExplore(q, {
+            tierLimit: exlpreOpt.tierLimit + 1
+        })));
     }
 
     async explore<T>(startup: QueryNode<T>): Promise<DataNode<any>[]> {

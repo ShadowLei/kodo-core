@@ -1,6 +1,6 @@
 {
   "name": "kodo-core",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "author": "Shadow Lei",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,8 +19,8 @@
     "build:js": "bun build --production ./src/index.ts --outdir ./dist",
     "build:types": "tsc -p tsconfig.types.json",
     "build": "bun run build:js && bun run build:types",
-    "test:ns": "bun test ./test/orm/complex.test.ts",
-    "test:db": "bun test ./test/db/db.test.ts",
+    "test:meta": "bun test ./test/meta/*.test.ts",
+    "test:db": "bun test ./test/orm/*.test.ts",
     "test:ddb": "bun test ./test/ddb/*.test.ts",
     "test": "bun test ./test/**/*.test.ts"
   },
