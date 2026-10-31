@@ -1,6 +1,6 @@
 {
   "name": "kodo-core",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "author": "Shadow Lei",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,6 +22,7 @@
     "test:meta": "bun test ./test/meta/*.test.ts",
     "test:db": "bun test ./test/orm/*.test.ts",
     "test:ddb": "bun test ./test/ddb/*.test.ts",
+    "test:tmp": "bun test ./test/tmp/tmp.test.ts",
     "test": "bun test ./test/**/*.test.ts"
   },
   "keywords": [

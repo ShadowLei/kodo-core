@@ -25,7 +25,7 @@ export class NodeTranslator implements INodeTranslator {
         return (typeof x === "function") ? x.name : x;
     }
 
-    link<TFrom, TTo>(ln: LinkNode<TFrom, TTo>): boolean {
+    link<TFrom, TTo>(ln: LinkNode<TFrom, TTo>): void {
         let fromName = this.getNameNs(ln.$from);
         let $toName = this.getNameNs(ln.$to)
         
@@ -36,9 +36,11 @@ export class NodeTranslator implements INodeTranslator {
         this.linkNodes.push(ln);
 
         let revertLink = LinkNodeUtil.revert(ln);
-        if (revertLink) { this.linkNodes.push(revertLink); }
-
-        return true;
+        if (revertLink) { 
+            this.linkNodes.push(revertLink);
+            // console.log("--==== ====--");
+            // console.log(revertLink);
+        }
     }
 
     private tryMapOnData<TFrom, TTo>(rtnQE: QueryExpressionObject<TTo>, where: LinkExpressionObject<TFrom, TTo>, data: DataNode<TFrom>): boolean {

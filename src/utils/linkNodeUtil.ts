@@ -21,9 +21,10 @@ export class LinkNodeUtil {
                 let r = LinkNodeUtil.revertExpression(m);
                 if (r) { rtn.$where.push(r); }
             });
+            return rtn;
         }
 
-        return rtn;
+        return null;
     }
 
     static revert<TFrom, TTo>(node: LinkNode<TFrom, TTo>): LinkNode<TTo, TFrom> | null {
@@ -33,7 +34,6 @@ export class LinkNodeUtil {
 
         let rtn: LinkNode<TTo, TFrom> = new LinkNode<TTo, TFrom>();
         rtn.$id = `${node.$id}-r`;
-        // rtn.$ns = node.$ns;
         rtn.$from = node.$to;
         rtn.$to = node.$from;
         rtn.expression = rExp;

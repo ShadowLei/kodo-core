@@ -347,4 +347,38 @@ describe("Compare ==", async function () {
 
         strictEqual(nodes.length, 4);
     });
+
+    test("8 - rec - false", async () => {
+        kodo.opt.recursion = false;
+        let nodes = await kodo.explore<Order>({
+            $id: "startup",
+            $ns: "Order",
+            expression: {
+                $where: [
+                    {
+                        id: {
+                            $op: "IN",
+                            $val: ["o3"]
+                        }
+                    },
+                ]
+            }
+        });
+
+        strictEqual(nodes.length, 6);
+
+        nodes = await kodo.explore<Order>({
+            $id: "startup",
+            $ns: "Order",
+            expression: {
+                $where: [
+                    {
+                        id: "o3"
+                    },
+                ]
+            }
+        });
+
+        strictEqual(nodes.length, 6);
+    });
 });

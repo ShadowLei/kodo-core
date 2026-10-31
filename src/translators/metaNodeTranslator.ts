@@ -22,7 +22,7 @@ export class MetaNodeTranslator implements INodeTranslator {
         return true;
     }
 
-    link<TFrom, TTo>(ln: LinkNode<TFrom, TTo>): boolean {
+    link<TFrom, TTo>(ln: LinkNode<TFrom, TTo>): void {
         if (!ln.$id) {
             let lnid = generateHashCode(ln);
             ln.$id = `ln-${this.getNsName(ln.$from)}-${this.getNsName(ln.$to)}-${lnid}`;
@@ -31,8 +31,6 @@ export class MetaNodeTranslator implements INodeTranslator {
 
         let revertLink = LinkNodeUtil.revert(ln);
         if (revertLink) { this.linkNodes.push(revertLink); }
-
-        return true;
     }
 
     private tryMapOnData<TFrom, TTo>(rtnQE: QueryExpressionObject<TTo>, where: LinkExpressionObject<TFrom, TTo>, data: DataNode<TFrom>): void {
