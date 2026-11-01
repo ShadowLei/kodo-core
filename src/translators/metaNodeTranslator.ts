@@ -1,5 +1,5 @@
 import { MetaUtil } from "meta-mapper";
-import { Constructor, LinkExpression, LinkExpressionObject, NodeNamespace, QueryExpressionObject, QueryOnValue, convertLP2RO, revertLinkOperator } from "../expressions";
+import { Constructor, LinkExpression, LinkExpressionObject, NodeNamespace, QueryExpressionObject, QueryOnValue } from "../expressions";
 import { DataNode, LinkNode, QueryNode } from "../nodes";
 import { generateHashCode } from "../utils";
 import { LinkNodeUtil } from "../utils/linkNodeUtil";
@@ -37,13 +37,14 @@ export class MetaNodeTranslator implements INodeTranslator {
         let dataVal = data.data[where.$from];
         if (dataVal === undefined) { return; }
 
-        let rop = revertLinkOperator(where.$op);
-        if (!rop) { return; }
+        // let rop = LinkNodeUtil.revertLinkOperator(where.$op);
+        // if (!rop) { return; }
 
-        rtnQE.$with = where.$with;
+        // rtnQE.$with = where.$with;
 
         rtnQE[where.$to] ||= {} as any;
-        (rtnQE[where.$to] as QueryOnValue<TTo, keyof TTo>).$op = convertLP2RO(rop);
+        // (rtnQE[where.$to] as QueryOnValue<TTo, keyof TTo>).$op = LinkNodeUtil.convertLP2RO(rop);
+        (rtnQE[where.$to] as QueryOnValue<TTo, keyof TTo>).$op = LinkNodeUtil.convertLP2RO(where.$op);
         (rtnQE[where.$to] as QueryOnValue<TTo, keyof TTo>).$val = dataVal as any;
     }
 
@@ -53,14 +54,14 @@ export class MetaNodeTranslator implements INodeTranslator {
             throw new Error("TODO: Not Implemented.");
         }
 
-        rtnQE.$with = expression.$with;
+        // rtnQE.$with = expression.$with;
 
         this.tryMapOnData(rtnQE, expression, data);
 
         expression.$where?.forEach(w => {
             w = w as LinkExpressionObject<TFrom, TTo>;
             let qeWhere: QueryExpressionObject<TTo> = {};
-            qeWhere.$with = w.$with;
+            // qeWhere.$with = w.$with;
             qeWhere.$where = [];
             this.tryMap(qeWhere, w, data);
             rtnQE.$where.push(qeWhere);

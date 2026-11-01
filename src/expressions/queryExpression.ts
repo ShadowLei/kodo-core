@@ -64,7 +64,7 @@ export function isQueryOnValue(val: any): boolean {
 export function isEmptyQueryExp<T>(exp: QueryExpression<T>): boolean {
 
     if (typeof (exp) === "function") {
-        return false;
+        return true;
     }
 
     if (exp.$where?.length > 0) { return false; }

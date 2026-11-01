@@ -13,6 +13,27 @@ initKodoTestData(kodo);
 
 describe("TMP Test", async function () {
     
+    test("0 - amount", async () => {
+        let nodes = await kodo.explore<Payment>({
+            $id: "startup",
+            $ns: "Payment",
+            expression: {
+                $where: [
+                    {
+                        amount: {
+                            $op: ">=",
+                            $val: 2500
+                        }
+                    },
+                ]
+            }
+        });
+
+        // printNodes(nodes);
+        strictEqual(nodes.length, 4);
+    
+    });
+
     //
     // query: SELECT version()
     // query: SELECT * FROM current_schema()
@@ -23,7 +44,7 @@ describe("TMP Test", async function () {
     // [ok - o3 * 1 ] query: SELECT "OrderOwner"."id" AS "OrderOwner_id", "OrderOwner"."orderid" AS "OrderOwner_orderid", "OrderOwner"."name" AS "OrderOwner_name", "OrderOwner"."ts" AS "OrderOwner_ts" FROM "owner" "OrderOwner" WHERE orderid = $1 LIMIT 10 -- PARAMETERS: ["o3"]
     // [ok - p3-2 * 1] query: SELECT "PaymentDetail"."id" AS "PaymentDetail_id", "PaymentDetail"."paymentid" AS "PaymentDetail_paymentid", "PaymentDetail"."amount" AS "PaymentDetail_amount", "PaymentDetail"."desc" AS "PaymentDetail_desc", "PaymentDetail"."ts" AS "PaymentDetail_ts" FROM "payment-detail" "PaymentDetail" WHERE paymentid = $1 LIMIT 10 -- PARAMETERS: ["p3-2"]
     // ✓ TMP Test > 8 - rec - false [47.48ms]
-    test("8 - rec - false", async () => {
+    test("1 - rec - false", async () => {
         let nodes = await kodo.explore<Order>({
             $id: "startup",
             $ns: "Order",
@@ -106,8 +127,8 @@ describe("TMP Test", async function () {
         // id: o3
         // qnid: startup
         // lnid: null
+        
         // printNodes(nodes);
         strictEqual(nodes.length, 6);
-
     });
 });

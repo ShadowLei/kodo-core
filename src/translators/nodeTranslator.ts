@@ -1,4 +1,4 @@
-import { LinkExpression, LinkExpressionObject, NodeNamespace, QueryExpressionObject, QueryOnValue, convertLP2RO, isEmptyQueryExp, revertLinkOperator } from "../expressions";
+import { LinkExpression, LinkExpressionObject, LinkExpressionPredicate, NodeNamespace, QueryExpressionObject, QueryOnValue, isEmptyQueryExp } from "../expressions";
 import { DataNode, LinkNode, QueryNode } from "../nodes";
 import { generateHashCode } from "../utils";
 import { LinkNodeUtil } from "../utils/linkNodeUtil";
@@ -46,40 +46,43 @@ export class NodeTranslator implements INodeTranslator {
     private tryMapOnData<TFrom, TTo>(rtnQE: QueryExpressionObject<TTo>, where: LinkExpressionObject<TFrom, TTo>, data: DataNode<TFrom>): boolean {
         let dataVal = data.data[where.$from];
 
-        // console.log("===try map===")
+        // console.log("===try map from===")
         // console.log(data.data);
         // console.log(where.$from);
         // console.log(dataVal);
 
         if (dataVal === undefined) { return false; }
 
-        let rop = revertLinkOperator(where.$op);
-        if (!rop) { return false; }
+        // let rop = LinkNodeUtil.revertLinkOperator(where.$op);
+        // if (!rop) { return false; }
 
-        rtnQE.$with = where.$with;
+        // rtnQE.$with = where.$with;
 
         rtnQE[where.$to] ||= {} as any;
-        (rtnQE[where.$to] as QueryOnValue<TTo, keyof TTo>).$op = convertLP2RO(rop);
+        // (rtnQE[where.$to] as QueryOnValue<TTo, keyof TTo>).$op = LinkNodeUtil.convertLP2RO(rop);
+        (rtnQE[where.$to] as QueryOnValue<TTo, keyof TTo>).$op = LinkNodeUtil.convertLP2RO(where.$op);
         (rtnQE[where.$to] as QueryOnValue<TTo, keyof TTo>).$val = dataVal as any; //TODO here: better strong type?
 
-        // console.log("===try map to ===")
+        // console.log("===try map to ===");
         // console.log(rtnQE);
     }
 
     private tryMap<TFrom, TTo>(rtnQE: QueryExpressionObject<TTo>, expression: LinkExpression<TFrom, TTo>, data: DataNode<TFrom>): void {
         
         if (typeof expression === "function") {
-            throw new Error("TODO: Not Implemented.");
+            // throw new Error("TODO: Not Implemented.");
+            let convertTo = (expression as LinkExpressionPredicate<TFrom, TTo>)(data.data);
+            rtnQE = Object.assign(rtnQE, convertTo);
+            return;
         }
 
-        rtnQE.$with = expression.$with;
-
+        // rtnQE.$with = expression.$with;
         this.tryMapOnData(rtnQE, expression, data);
 
         expression.$where?.forEach(w => {
             w = w as LinkExpressionObject<TFrom, TTo>;
             let qeWhere: QueryExpressionObject<TTo> = {};
-            qeWhere.$with = w.$with;
+            // qeWhere.$with = w.$with;
             qeWhere.$where = [];
             this.tryMap(qeWhere, w, data);
             rtnQE.$where.push(qeWhere);
@@ -101,13 +104,11 @@ export class NodeTranslator implements INodeTranslator {
             qn.expression = {};
             qn.expression.$where = [];
 
-            /*
-            let lnExp = ln.expression as LinkExpression<TFrom, TTo>
-            if (typeof lnExp === "function") {
-                lnExp()
-                qn.expression = to => lnExp()
-            }
-            */
+            // let lnExp = ln.expression as LinkExpression<TFrom, TTo>
+            // if (typeof lnExp === "function") {
+            //     lnExp()
+            //     qn.expression = to => lnExp()
+            // }
 
             this.tryMap(qn.expression, ln.expression as LinkExpression<TFrom, TTo>, data);
 

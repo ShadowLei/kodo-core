@@ -46,11 +46,10 @@ export class Kodo {
         this.opt = Object.assign(this.opt, opt);
     }
 
-    linkExpression(expression: string, params?: string[]): void {
-        //TODO here:
-        //expression: ((a == b && a <> c) || (b like "Armstrong"))
-        //Need a volunteer who's familar w/ complier | interpreter to coding on this...
-    }
+    // linkExpression(expression: string, params?: string[]): void {
+    //     //expression: ((a == b && a <> c) || (b like "Armstrong"))
+    //     //Need a volunteer who's familar w/ complier | interpreter to coding on this...
+    // }
 
     registerTranslator(translator: INodeTranslator) {
         this.translators.push(translator);

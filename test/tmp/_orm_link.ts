@@ -1,7 +1,7 @@
 
 import { Order, Payment, PaymentDetail, OrderOwner } from "../_module";
 import { DataNode, Kodo, MemoryProvider, MetaNodeTranslator, NodeTranslator } from "../../src";
-import { DataSource } from "typeorm";
+import { DataSource, Or } from "typeorm";
 import { TypeOrmProvider } from "../../src/providers/typeOrmProvider";
 
 export function getDS() {
@@ -34,28 +34,49 @@ export function initKodoTestData(kodo: Kodo) {
     translator.link<Order, Payment>({
         $from: Order,
         $to: Payment,
-        expression: {
-            $from: "id",
-            $op: "==",
-            $to: "orderid",
-            $where: []
+        // expression: {
+        //     $from: "id",
+        //     $op: "->",
+        //     $to: "orderid",
+        //     $where: []
+        // }
+        expression: (order) => {
+            return {
+                orderid: order.id
+            } as any;
         }
     });
+    // translator.link<Payment, Order>({
+    //     $from: Payment,
+    //     $to: Order,
+    //     // expression: {
+    //     //     $from: "id",
+    //     //     $op: "->",
+    //     //     $to: "orderid",
+    //     //     $where: []
+    //     // }
+    //     expression: (payment) => {
+    //         return {
+    //             id: payment.orderid
+    //         } as any;
+    //     }
+    // });
     translator.link<Order, OrderOwner>({
         $from: Order,
         $to: OrderOwner,
         expression: {
             $from: "id",
-            $op: "==",
+            $op: "->",
             $to: "orderid"
         }
     });
+
     translator.link<Payment, PaymentDetail>({
         $from: Payment,
         $to: PaymentDetail,
         expression: {
             $from: "id",
-            $op: "==",
+            $op: "->",
             $to: "paymentid",
             $where: []
         }
