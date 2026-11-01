@@ -35,7 +35,7 @@ export function initKodoTestData(kodo: Kodo) {
             $from: "id",
             $op: "==",
             $to: "orderid",
-            $where: []
+            // $where: []
         }
     });
     translator.link<Order, OrderOwner>({
@@ -45,7 +45,7 @@ export function initKodoTestData(kodo: Kodo) {
             $from: "id",
             $op: "==",
             $to: "orderid",
-            $where: []
+            // $where: []
         }
     });
     translator.link<Payment, PaymentDetail>({

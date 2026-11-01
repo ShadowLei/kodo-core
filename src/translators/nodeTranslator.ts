@@ -79,14 +79,15 @@ export class NodeTranslator implements INodeTranslator {
         // rtnQE.$with = expression.$with;
         this.tryMapOnData(rtnQE, expression, data);
 
-        expression.$where?.forEach(w => {
-            w = w as LinkExpressionObject<TFrom, TTo>;
-            let qeWhere: QueryExpressionObject<TTo> = {};
-            // qeWhere.$with = w.$with;
-            qeWhere.$where = [];
-            this.tryMap(qeWhere, w, data);
-            rtnQE.$where.push(qeWhere);
-        });
+        // TMP: remove as not consider well.
+        // expression.$where?.forEach(w => {
+        //     w = w as LinkExpressionObject<TFrom, TTo>;
+        //     let qeWhere: QueryExpressionObject<TTo> = {};
+        //     // qeWhere.$with = w.$with;
+        //     qeWhere.$where = [];
+        //     this.tryMap(qeWhere, w, data);
+        //     rtnQE.$where.push(qeWhere);
+        // });
     }
 
     //DataNode + LinkNode => QueryNode

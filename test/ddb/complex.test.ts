@@ -263,7 +263,7 @@ describe("多层嵌套查询 (参考 orm complex)", () => {
             }
         });
 
-        printNodes(nodes);
+        // printNodes(nodes);
 
         // p3-1(amount=1300 < 1500) 与 p3-2(amount=2500 >= 2000) 都命中 OR
         // recursion=false 沿 fromDN 链去重：pd3-1 与 pd3-2 各自通过 p3-1 / p3-2 的路径被查询

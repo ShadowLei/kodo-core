@@ -14,16 +14,18 @@ export class LinkNodeUtil {
             $from: origin.$to,
             $to: origin.$from,
             // $with: origin.$with,
-            $where: []
+            // $where: []
         };
 
         //when ==, means A->B && B->A
         if (origin.$op === "==") {
             rtn.$op = origin.$op;
-            origin.$where?.forEach(m => {
-                let r = LinkNodeUtil.revertExpression(m);
-                if (r) { rtn.$where.push(r); }
-            });
+
+            // TMP: remove as not consider well.
+            // origin.$where?.forEach(m => {
+            //     let r = LinkNodeUtil.revertExpression(m);
+            //     if (r) { rtn.$where.push(r); }
+            // });
             return rtn;
         }
 

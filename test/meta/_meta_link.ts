@@ -204,7 +204,7 @@ export function initKodoTestExpressionData(kodo: Kodo) {
             $from: "id",
             $op: "==",
             $to: "orderid",
-            $where: []
+            // $where: []
         }
     });
     translator.link<Order, OrderOwner>({
