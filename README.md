@@ -20,6 +20,10 @@ It then will select & load all the related data via your giving.
   > i.e. `expression: p => p.orderid === "o3" && p.id === "p3-2"`
 * v0.1.1: Swtich compiler tools from NodeJs to Bun
 * v0.1.2: Add DynamoDB provider, note only support Query, Scan is not supported. Add option "limit" as well to avoid unintentional of massive query
+* v0.1.3: try AI coding
+* v0.1.4: add KodoOption, openspec
+* v0.1.5: fix bug & simplify link-expression
+* v0.1.6: Add object {get $id(): string;} to support custom id
 
 ## Design
 * Kodo-Overview:

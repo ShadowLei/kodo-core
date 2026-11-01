@@ -4,10 +4,12 @@ import { DataNode, LinkNode, QueryNode } from "../nodes";
 import { generateHashCode } from "../utils";
 import { LinkNodeUtil } from "../utils/linkNodeUtil";
 import { INodeTranslator } from "./iNodeTranslator";
+import { Kodo } from "../kodo";
 
 //DataNode + LinkNode => QueryNode
 export class MetaNodeTranslator implements INodeTranslator {
-    private linkNodes: LinkNode<any, any>[];
+    kodo: Kodo;
+    linkNodes: LinkNode<any, any>[];
 
     constructor() {
         this.linkNodes = [];

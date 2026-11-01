@@ -3,6 +3,7 @@ import { QueryNode } from "../nodes/queryNode";
 import { QueryExpression, ROperator, BOperator, isQueryExpressionKey, QueryOn, QueryOnValue, QueryExpressionObject, NodeNamespace } from "../expressions";
 import { IDataProvider } from "./iDataProvider";
 import { generateHashCode, isNullOrUndefined } from "../utils";
+import { Kodo } from "../kodo";
 
 //defer means delay to judge
 declare type MatchResult = true | false | "defer";
@@ -13,6 +14,7 @@ class MemoryData<T> {
 }
 
 export class MemoryProvider implements IDataProvider {
+    kodo: Kodo;
     private objs: MemoryData<any>[];
 
     constructor() {
@@ -23,7 +25,7 @@ export class MemoryProvider implements IDataProvider {
         return (typeof x === "function") ? x.name : x;
     }
 
-    add<T>(namespace: NodeNamespace<T>, obj: T) {
+    add<T>(namespace: NodeNamespace<T>, obj: Partial<T>) {
         this.objs.push({
             ns: namespace,
             val: obj
@@ -208,7 +210,7 @@ export class MemoryProvider implements IDataProvider {
             node.$fromQN = qNode;
             node.$ns = this.getNameNs(m.ns);
             node.data = m.val;
-            node.$id = m.val?.id || generateHashCode(m.val);  //TODO here: use hashcode to generate?
+            node.$id = this.kodo.tryGetObjectId(m.val, node.$ns) ?? m.val?.id ?? generateHashCode(m.val);  //TODO here: use hashcode to generate?
             return node;
         });
 

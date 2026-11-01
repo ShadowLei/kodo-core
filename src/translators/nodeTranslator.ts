@@ -1,4 +1,5 @@
 import { LinkExpression, LinkExpressionObject, LinkExpressionPredicate, NodeNamespace, QueryExpressionObject, QueryOnValue, isEmptyQueryExp } from "../expressions";
+import { Kodo } from "../kodo";
 import { DataNode, LinkNode, QueryNode } from "../nodes";
 import { generateHashCode } from "../utils";
 import { LinkNodeUtil } from "../utils/linkNodeUtil";
@@ -6,7 +7,8 @@ import { INodeTranslator } from "./iNodeTranslator";
 
 //DataNode + LinkNode => QueryNode
 export class NodeTranslator implements INodeTranslator {
-    private linkNodes: LinkNode<any, any>[];
+    kodo: Kodo;
+    linkNodes: LinkNode<any, any>[];
 
     constructor() {
         this.linkNodes = [];
@@ -27,7 +29,7 @@ export class NodeTranslator implements INodeTranslator {
 
     link<TFrom, TTo>(ln: LinkNode<TFrom, TTo>): void {
         let fromName = this.getNameNs(ln.$from);
-        let $toName = this.getNameNs(ln.$to)
+        let $toName = this.getNameNs(ln.$to);
         
         if (!ln.$id) {
             let lnid = generateHashCode(ln);

@@ -1,10 +1,11 @@
 import { mc, mp } from "meta-mapper";
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, PrimaryColumn } from "typeorm";
 import { UpdateDateColumn } from "typeorm/browser";
+import { IKodoID } from "../src";
 
 @Entity("order")
 @mc("order")
-export class Order {
+export class Order implements IKodoID {
     @PrimaryColumn()
     @mp
     id: string;
@@ -19,12 +20,16 @@ export class Order {
 
     @UpdateDateColumn()
     ts?: Date;
+
+    get $id() {
+        return this.id;
+    }
 }
 
 
 @Entity("payment")
 @mc("payment")
-export class Payment {
+export class Payment implements IKodoID {
     @PrimaryColumn()
     @mp
     id: string;
@@ -43,11 +48,15 @@ export class Payment {
 
     @UpdateDateColumn()
     ts?: Date;
+
+    get $id() {
+        return this.id;
+    }
 }
 
 @Entity("payment-detail")
 @mc("payment-detail")
-export class PaymentDetail {
+export class PaymentDetail implements IKodoID {
 
     @PrimaryColumn()
     @mp
@@ -67,12 +76,16 @@ export class PaymentDetail {
 
     @UpdateDateColumn()
     ts?: Date;
+
+    get $id() {
+        return this.id;
+    }
 }
 
 
 @Entity("owner")
 @mc("owner")
-export class OrderOwner {
+export class OrderOwner implements IKodoID {
     @PrimaryColumn()
     @mp
     id: string;
@@ -86,5 +99,9 @@ export class OrderOwner {
     name?: string;
 
     @UpdateDateColumn()
-    ts?: Date
+    ts?: Date;
+
+    get $id() {
+        return this.id;
+    }
 }

@@ -12,6 +12,7 @@ import {
 } from "../expressions";
 import { IDataProvider } from "./iDataProvider";
 import { generateHashCode, isNullOrUndefined } from "../utils";
+import { Kodo } from "../kodo";
 
 /*
  * DDBProvider
@@ -75,6 +76,8 @@ interface BuildCtx {
 }
 
 export class DDBProvider implements IDataProvider {
+    kodo: Kodo;
+
     private condSeq = 0;
 
     constructor(
@@ -351,7 +354,7 @@ export class DDBProvider implements IDataProvider {
             node.$fromQN = qNode;
             node.$ns = qNode.$ns;
             node.data = m as Partial<T>;
-            node.$id = m.id ?? m[table.pk] ?? generateHashCode(m);
+            node.$id = this.kodo.tryGetObjectId(m, qNode.$ns) ?? m.id ?? m[table.pk] ?? generateHashCode(m);
             return node;
         });
     }

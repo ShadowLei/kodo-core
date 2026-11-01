@@ -4,9 +4,11 @@ import { QueryExpression, ROperator, BOperator, isQueryExpressionKey, QueryOn, Q
 import { IDataProvider } from "./iDataProvider";
 import { generateHashCode, isNullOrUndefined } from "../utils";
 import { And, Between, Brackets, DataSource, Equal, FindOperator, FindOptionsWhere, ILike, In, IsNull, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Not, ObjectLiteral, Or, Repository, SelectQueryBuilder, WhereExpressionBuilder } from "typeorm";
+import { Kodo } from "../kodo";
 
 
 export class TypeOrmProvider implements IDataProvider {
+    kodo: Kodo;
     constructor(private ds: DataSource) {
     }
 
@@ -173,7 +175,7 @@ export class TypeOrmProvider implements IDataProvider {
             node.$fromQN = qNode;
             node.$ns = qNode.$ns;
             node.data = m as Partial<T>;
-            node.$id = m.id || generateHashCode(m);
+            node.$id = this.kodo.tryGetObjectId(m, qNode.$ns) ?? m.id ?? generateHashCode(m);
             return node;
         });
 
