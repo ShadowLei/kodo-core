@@ -336,25 +336,21 @@ export class DDBProvider implements IDataProvider {
         const inputs = pkVals.map(v => {
             const input = this.buildQueryInput(table, root, keyInfo, v);
             // apply forced limit
-            if (qNode.$limit && qNode.$limit > 0) {
-                input.Limit = qNode.$limit;
-            }
+            input.Limit = this.kodo.opt.limit;
             return input;
         });
         const results = await Promise.all(inputs.map(i => this.client.send(new QueryCommand(i))));
 
         let items = results.flatMap(r => r.Items || []);
         // 合并后总体 limit，确保 IN 多 pk 时总共不超过 limit
-        if (qNode.$limit && qNode.$limit > 0) {
-            items = items.slice(0, qNode.$limit);
-        }
+        items = items.slice(0, this.kodo.opt.limit);
 
         return items.map(m => {
             const node = new DataNode<T>();
             node.$fromQN = qNode;
             node.$ns = qNode.$ns;
             node.data = m as Partial<T>;
-            node.$id = this.kodo.tryGetObjectId(m, qNode.$ns) ?? m.id ?? m[table.pk] ?? generateHashCode(m);
+            node.$id = this.kodo.tryGetObjectId(m, qNode.$ns) || m.id || m[table.pk] || generateHashCode(m);
             return node;
         });
     }

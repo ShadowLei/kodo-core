@@ -200,9 +200,7 @@ export class MemoryProvider implements IDataProvider {
         });
 
         //apply forced limit
-        if (qNode.$limit && qNode.$limit > 0) {
-            list = list.slice(0, qNode.$limit);
-        }
+        list = list.slice(0, this.kodo.opt.limit);
 
         //convert to data node
         let rtn = list.map(m => {
@@ -210,7 +208,7 @@ export class MemoryProvider implements IDataProvider {
             node.$fromQN = qNode;
             node.$ns = this.getNameNs(m.ns);
             node.data = m.val;
-            node.$id = this.kodo.tryGetObjectId(m.val, node.$ns) ?? m.val?.id ?? generateHashCode(m.val);  //TODO here: use hashcode to generate?
+            node.$id = this.kodo.tryGetObjectId(m.val, node.$ns) || m.val?.id || generateHashCode(m.val);  //TODO here: use hashcode to generate?
             return node;
         });
 

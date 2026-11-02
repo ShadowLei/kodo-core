@@ -162,9 +162,7 @@ export class TypeOrmProvider implements IDataProvider {
 
         //apply forced limit
         let qb = queryRtn.queryBuilder as SelectQueryBuilder<any>;
-        if (qNode.$limit && qNode.$limit > 0) {
-            qb = qb.take(qNode.$limit);
-        }
+        qb = qb.take(this.kodo.opt.limit);
 
         // console.warn(ormQuery);
         let list = await qb.getMany();
@@ -175,7 +173,7 @@ export class TypeOrmProvider implements IDataProvider {
             node.$fromQN = qNode;
             node.$ns = qNode.$ns;
             node.data = m as Partial<T>;
-            node.$id = this.kodo.tryGetObjectId(m, qNode.$ns) ?? m.id ?? generateHashCode(m);
+            node.$id = this.kodo.tryGetObjectId(m, qNode.$ns) || m.id || generateHashCode(m);
             return node;
         });
 

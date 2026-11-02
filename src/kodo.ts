@@ -129,9 +129,6 @@ export class Kodo {
             throw new Error(`No data-provider serve the ns: ${startup.$ns}`);
         }
 
-        //强制 limit，防止错误查询返回大量数据
-        startup.$limit = this.opt.limit;
-
         //1.1 query
         let founds = await provider.lookup(startup);
         if (founds.length <= 0) { return; }
