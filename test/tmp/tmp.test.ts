@@ -41,9 +41,15 @@ describe("TMP Test", async function () {
                 ]}
             }
         ], nodes);
-        console.log(violations);
-        strictEqual(violations.length, 0);
+
+        // let pays = nodes.filter(m => m.$ns === "Payment");
+        // console.log(pays);
+
+        // console.log(violations[0].violated);
+        // console.log(violations[1].violated);
+        strictEqual(violations.length, 1);
         strictEqual(violations[0].violated.length, 2);
+        // strictEqual(violations[1].violated.length, 2);
     });
     
     // test("0 - amount", async () => {

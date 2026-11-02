@@ -32,7 +32,7 @@ export function evaluateRule<T = any>(rule: NotificationRule<T>, nodes: DataNode
         case "any":
             // Fails when no node satisfies the predicate (including an empty set).
             // No single offending node: the failure is the absence of a match.
-            violated = [];
+            violated = scoped;
             break;
         case "none":
             // Fails when any node satisfies the predicate.
