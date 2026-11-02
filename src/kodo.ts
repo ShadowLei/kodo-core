@@ -1,5 +1,6 @@
 import { Constructor, NodeNamespace } from "./_define";
 import { DataNode, DataNodeMap, LinkNode, QueryNode } from "./nodes";
+import { INotifier, NotificationEngine, NotificationRule, RuleViolation } from "./notify";
 import { IDataProvider } from "./providers";
 import { INodeTranslator } from "./translators";
 import { generateHashCode } from "./utils";
@@ -174,5 +175,11 @@ export class Kodo {
         });
 
         return this.nodes.getList();
+    }
+
+    async checkRules(rules: NotificationRule[], nodes?: DataNode<any>[], notifier?: INotifier): Promise<RuleViolation[]> {
+        const targets = nodes ?? this.nodes.getList();
+        const engine = new NotificationEngine(notifier);
+        return engine.check(rules, targets);
     }
 }
