@@ -9,11 +9,9 @@ export interface RuleViolation {
 
 export function evaluateRule<T = any>(rule: NotificationRule<T>, nodes: DataNode<any>[]): RuleViolation | null {
     // Disabled rules are skipped and never produce a violation.
-    if (rule.enabled === false) {
+    if (rule.active === false) {
         return null;
     }
-
-    const expect = rule.expect ?? "all";
 
     // Optional target namespace: only evaluate nodes in that namespace.
     const scoped = rule?.$ns ? nodes.filter(n => n.$ns === rule?.$ns) : nodes;
@@ -23,7 +21,7 @@ export function evaluateRule<T = any>(rule: NotificationRule<T>, nodes: DataNode
 
     let violated: DataNode<any>[] = [];
 
-    switch (expect) {
+    switch (rule.expect) {
         case "all":
             // Fails when any node does not satisfy the predicate.
             violated = scoped.filter((_, i) => results[i] === false);
@@ -41,7 +39,7 @@ export function evaluateRule<T = any>(rule: NotificationRule<T>, nodes: DataNode
 
     // Determine whether the rule passes (matches) per quantifier.
     let passes: boolean;
-    switch (expect) {
+    switch (rule.expect) {
         case "all":
             passes = !scoped.some((_, i) => results[i] === false);
             break;

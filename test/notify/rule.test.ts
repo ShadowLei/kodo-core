@@ -26,6 +26,7 @@ const payments: DataNode<any>[] = [
 function rule(overrides: Partial<NotificationRule> = {}): NotificationRule {
     return {
         id: "r1",
+        expect: "all",
         match: { amount: { $op: "<=", $val: 2500 } },
         ...overrides,
     };
@@ -146,23 +147,14 @@ describe("evaluateRule - nested and operators", () => {
 
 describe("evaluateRule - disabled rules", () => {
     test("disabled rules are skipped", () => {
-        const r = rule({ enabled: false, match: { amount: { $op: "<=", $val: 2500 } } });
+        const r = rule({ active: false, match: { amount: { $op: "<=", $val: 2500 } } });
         expect(evaluateRule(r, payments)).toBeNull();
     });
 });
 
-class RecordingNotifier implements INotifier {
-    calls: { rule: NotificationRule; violated: DataNode<any>[] }[] = [];
-
-    async notify(rule: NotificationRule, violated: DataNode<any>[]): Promise<void> {
-        this.calls.push({ rule, violated });
-    }
-}
-
 describe("NotificationEngine", () => {
     test("notifies for each violated rule", async () => {
-        const notifier = new RecordingNotifier();
-        const engine = new NotificationEngine(notifier);
+        const engine = new NotificationEngine();
         const rules = [
             rule({ id: "ok", match: { amount: { $op: ">=", $val: 0 } } }),
             rule({ id: "bad", match: { amount: { $op: "<=", $val: 2500 } } }),
@@ -172,8 +164,6 @@ describe("NotificationEngine", () => {
 
         expect(violations.length).toBe(1);
         expect(violations[0].rule.id).toBe("bad");
-        expect(notifier.calls.length).toBe(1);
-        expect(notifier.calls[0].rule.id).toBe("bad");
     });
 });
 

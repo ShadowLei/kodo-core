@@ -1,6 +1,6 @@
 import { Constructor, NodeNamespace } from "./_define";
 import { DataNode, DataNodeMap, LinkNode, QueryNode } from "./nodes";
-import { INotifier, NotificationEngine, NotificationRule, RuleViolation } from "./notify";
+import { INotifier, NotificationEngine, NotificationRule, Notifier, RuleViolation } from "./notify";
 import { IDataProvider } from "./providers";
 import { INodeTranslator } from "./translators";
 import { generateHashCode } from "./utils";
@@ -23,9 +23,20 @@ export class Kodo {
     private providers: Map<string, IDataProvider>;
     private nodes: DataNodeMap;
     private classMap: Record<string, Constructor<any>>;
+    private notifier: Notifier;
     private inited: boolean;
 
     opt: KodoOption;
+
+    constructor(protected name: string, opt?: Partial<KodoOption>) {
+        this.translators = [];
+        this.providers = new Map();
+        this.nodes = new DataNodeMap();
+        this.opt = this.getDefaultOption(opt);
+        this.classMap = {};
+        this.notifier = new Notifier();
+        this.inited = false;
+    }
 
     private getDefaultOption(opt?: Partial<KodoOption>): KodoOption {
         let defaultOpt: KodoOption = {
@@ -55,15 +66,6 @@ export class Kodo {
         return null;
     }
 
-    constructor(protected name: string, opt?: Partial<KodoOption>) {
-        this.translators = [];
-        this.providers = new Map();
-        this.nodes = new DataNodeMap();
-        this.opt = this.getDefaultOption(opt);
-        this.classMap = {};
-        this.inited = false;
-    }
-
     setOption(opt: Partial<KodoOption>) {
         this.opt = Object.assign(this.opt, opt);
     }
@@ -89,6 +91,10 @@ export class Kodo {
         if (typeof input === "function") {
             this.classMap[input.name] = input;
         }
+    }
+
+    registerNotifier(n: INotifier): void {
+        this.notifier.register(n);
     }
 
     private hasNamespaceInPath<T>(startup: QueryNode<T>): boolean {
@@ -176,9 +182,9 @@ export class Kodo {
         return this.nodes.getList();
     }
 
-    async checkRules(rules: NotificationRule[], nodes?: DataNode<any>[], notifier?: INotifier): Promise<RuleViolation[]> {
+    async checkRules(rules: NotificationRule[], nodes?: DataNode<any>[]): Promise<RuleViolation[]> {
         const targets = nodes ?? this.nodes.getList();
-        const engine = new NotificationEngine(notifier);
+        const engine = new NotificationEngine(this.notifier);
         return engine.check(rules, targets);
     }
 }

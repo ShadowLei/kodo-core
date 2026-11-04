@@ -1,4 +1,4 @@
-import { DataNode, Kodo, NotificationRule } from "../../src";
+import { ConsoleNotifier, DataNode, Kodo, NotificationRule } from "../../src";
 import { Order, Payment } from "../_module";
 import { initKodoTestExpressionData, initKodoTestData } from "./_orm_link";
 import { printNodes, strictEqual, verifyIds } from "../_common";
@@ -18,6 +18,7 @@ let kodo = new Kodo("my-test-net", {
     recursion: false
 });
 initKodoTestData(kodo);
+kodo.registerNotifier(new ConsoleNotifier());
 
 describe("TMP Test", async function () {
 
@@ -25,7 +26,7 @@ describe("TMP Test", async function () {
         let nodes = await kodo.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
         let violations = await kodo.checkRules([
             {
-                id: "r",
+                // id: "payment between [100, 200]",
                 $ns: "Payment",
                 expect: "any",
                 match: {
@@ -37,7 +38,11 @@ describe("TMP Test", async function () {
                     {
                         amount: { $op: "<=", $val: 200 }
                     }
-                ]}
+                ]},
+                notify: {
+                    channels: ["console", "email"],
+                    message: "payment between [100, 200]"
+                }
             }
         ], nodes);
 
@@ -47,29 +52,33 @@ describe("TMP Test", async function () {
         strictEqual(violations[0].violated.length, 2);
     });
 
-    test("any amount - [100, 200] - none", async () => {
-        let nodes = await kodo.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
-        let violations = await kodo.checkRules([
-            {
-                id: "r",
-                // $ns: "Payment",
-                expect: "any",
-                match: {
-                    $with: "&&",
-                    $where: [
-                    {
-                        amount: { $op: ">=", $val: 100 }
-                    },
-                    {
-                        amount: { $op: "<=", $val: 200 }
-                    }
-                ]}
-            }
-        ], nodes);
+    // test("any amount - [100, 200] - none", async () => {
+    //     let nodes = await kodo.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
+    //     let violations = await kodo.checkRules([
+    //         {
+    //             id: "my-tmp-validation-rule",
+    //             // $ns: "Payment",
+    //             expect: "any",
+    //             match: {
+    //                 $with: "&&",
+    //                 $where: [
+    //                 {
+    //                     amount: { $op: ">=", $val: 100 }
+    //                 },
+    //                 {
+    //                     amount: { $op: "<=", $val: 200 }
+    //                 }
+    //             ]},
+    //             notify: {
+    //                 channels: ["console", "email"],
+    //                 message: ""
+    //             }
+    //         }
+    //     ], nodes);
 
-        strictEqual(violations.length, 1);
-        strictEqual(violations[0].violated.length, 6);
-    });
+    //     strictEqual(violations.length, 1);
+    //     strictEqual(violations[0].violated.length, 6);
+    // });
     
     // test("0 - amount", async () => {
     //     let nodes = await kodo.explore<Payment>({

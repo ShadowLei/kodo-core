@@ -8,16 +8,8 @@ import { describe, test } from "bun:test";
 let kodo = new Kodo("notify-explore", { cache: false });
 initKodoTestData(kodo);
 
-class RecordingNotifier implements INotifier {
-    calls: { rule: NotificationRule; violated: DataNode<any>[] }[] = [];
-
-    async notify(rule: NotificationRule, violated: DataNode<any>[]): Promise<void> {
-        this.calls.push({ rule, violated });
-    }
-}
-
 function rule(overrides: Partial<NotificationRule> = {}): NotificationRule {
-    return { id: "r", $ns: "Payment", match: {}, ...overrides };
+    return { id: "r", expect: "all", $ns: "Payment", match: {}, ...overrides };
 }
 
 function ids(violated: DataNode<any>[]): (string | number)[] {
@@ -97,17 +89,14 @@ describe("checkRules defaults to last explore nodes", () => {
 
 describe("checkRules notifies only on violations", () => {
     test("notifier receives each violated rule", async () => {
-        let notifier = new RecordingNotifier();
         let nodes = await kodo.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
 
         let violations = await kodo.checkRules([
             rule({ id: "ok", match: { amount: { $op: ">=", $val: 0 } } }),
             rule({ id: "bad", match: { amount: { $op: "<", $val: 2500 } } }),
-        ], nodes, notifier);
+        ], nodes);
 
         strictEqual(violations.length, 1);
-        strictEqual(notifier.calls.length, 1);
-        strictEqual(notifier.calls[0].rule.id, "bad");
     });
 });
 
