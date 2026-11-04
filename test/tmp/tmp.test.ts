@@ -4,9 +4,9 @@ import { initKodoTestExpressionData, initKodoTestData } from "./_orm_link";
 import { printNodes, strictEqual, verifyIds } from "../_common";
 import { describe, test } from 'bun:test';
 
-function rule(overrides: Partial<NotificationRule> = {}): NotificationRule {
-    return { id: "r", target: { $ns: "Payment" }, match: {}, ...overrides };
-}
+// function rule(overrides: Partial<NotificationRule> = {}): NotificationRule {
+//     return { id: "r", $ns: "Payment", match: {}, ...overrides };
+// }
 
 // function ids(violated: DataNode<any>[]): (string | number)[] {
 //     return violated.map(n => n.$id);
@@ -21,13 +21,12 @@ initKodoTestData(kodo);
 
 describe("TMP Test", async function () {
 
-    test("any Payment amount > 2000 passes", async () => {
+    test("any Payment amount [100, 200] - none", async () => {
         let nodes = await kodo.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
-        console.log(nodes.length);
         let violations = await kodo.checkRules([
             {
                 id: "r",
-                target: { $ns: "Payment" },
+                $ns: "Payment",
                 expect: "any",
                 match: {
                     $with: "&&",
@@ -42,14 +41,34 @@ describe("TMP Test", async function () {
             }
         ], nodes);
 
-        // let pays = nodes.filter(m => m.$ns === "Payment");
-        // console.log(pays);
+        // console.log(nodes);
 
-        // console.log(violations[0].violated);
-        // console.log(violations[1].violated);
         strictEqual(violations.length, 1);
         strictEqual(violations[0].violated.length, 2);
-        // strictEqual(violations[1].violated.length, 2);
+    });
+
+    test("any amount - [100, 200] - none", async () => {
+        let nodes = await kodo.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
+        let violations = await kodo.checkRules([
+            {
+                id: "r",
+                // $ns: "Payment",
+                expect: "any",
+                match: {
+                    $with: "&&",
+                    $where: [
+                    {
+                        amount: { $op: ">=", $val: 100 }
+                    },
+                    {
+                        amount: { $op: "<=", $val: 200 }
+                    }
+                ]}
+            }
+        ], nodes);
+
+        strictEqual(violations.length, 1);
+        strictEqual(violations[0].violated.length, 6);
     });
     
     // test("0 - amount", async () => {

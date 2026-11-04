@@ -1,9 +1,11 @@
 import { QueryExpression } from "../expressions/queryExpression";
 import { DataNode } from "./dataNode";
 import { LinkNode } from "./linkNode";
-import { NodeBase } from "./nodeBase";
 
-export class QueryNode<T> extends NodeBase {
+export class QueryNode<T> {
+    $id?: string;
+    $ns: string;
+
     $fromDN?: DataNode<any>;
     $fromLN?: LinkNode<any, T>;
 

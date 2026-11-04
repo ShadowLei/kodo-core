@@ -173,7 +173,7 @@ export class TypeOrmProvider implements IDataProvider {
             node.$fromQN = qNode;
             node.$ns = qNode.$ns;
             node.data = m as Partial<T>;
-            node.$id = this.kodo.tryGetObjectId(m, qNode.$ns) || m.id || generateHashCode(m);
+            node.$id = this.kodo.tryGetObjectId(m, qNode.$ns) || m.id || `${qNode.$ns}-${generateHashCode(m)}`;
             return node;
         });
 

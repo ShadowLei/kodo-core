@@ -3,12 +3,10 @@ import { QueryExpression } from "../expressions";
 export type RuleExpect = "all" | "any" | "none";
 
 export interface NotificationRule<T = any> {
-    id: string;
+    id?: string;
     description?: string;
     enabled?: boolean;
-    target?: {
-        $ns?: string;
-    };
+    $ns?: string;
     expect?: RuleExpect;
     match: QueryExpression<T>;
     notify?: {

@@ -1,10 +1,10 @@
-import { NodeNamespace } from "../_define";
-import { NodeBase } from "./nodeBase";
 import { QueryNode } from "./queryNode";
 
-export class DataNode<T> extends NodeBase {
-    $fromQN?: QueryNode<T>;
+export class DataNode<T> {
+    $id?: number | string;
+    $ns: string;
 
+    $fromQN?: QueryNode<T>;
     data: Partial<T>;
 }
 

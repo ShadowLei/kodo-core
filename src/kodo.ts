@@ -167,8 +167,7 @@ export class Kodo {
         }
 
         if (!startup.$id) {
-            let qnid = generateHashCode(startup);
-            startup.$id = `qn-${startup.$ns}-$startup-${qnid}`;
+            startup.$id = `qn-startup.${startup.$ns}..${generateHashCode()}`;
         }
         await this.loopExplore(startup, {
             tierLimit: 0

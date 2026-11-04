@@ -51,7 +51,7 @@ export class MemoryProvider implements IDataProvider {
             node.$fromQN = qNode;
             node.$ns = this.getNameNs(m.ns);
             node.data = m.val;
-            node.$id = this.kodo.tryGetObjectId(m.val, node.$ns) || m.val?.id || generateHashCode(m.val);  //TODO here: use hashcode to generate?
+            node.$id = this.kodo.tryGetObjectId(m.val, node.$ns) || m.val?.id || `${qNode.$ns}-${generateHashCode(m.val)}`;
             return node;
         });
 

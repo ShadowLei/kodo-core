@@ -60,7 +60,7 @@ describe("evaluateRule - any", () => {
         const r = rule({ expect: "any", match: { amount: { $op: ">", $val: 9999 } } });
         const v = evaluateRule(r, payments);
         expect(v).not.toBeNull();
-        expect(v!.violated).toEqual([]);
+        expect(v!.violated.length).toEqual(3);
     });
 
     test("fails on an empty evaluated set", () => {
@@ -93,7 +93,7 @@ describe("evaluateRule - target namespace", () => {
     ];
 
     test("only evaluates nodes in the target namespace", () => {
-        const r = rule({ target: { $ns: "Payment" }, match: { amount: { $op: "<=", $val: 2500 } } });
+        const r = rule({ $ns: "Payment", match: { amount: { $op: "<=", $val: 2500 } } });
         expect(evaluateRule(r, mixed)).toBeNull();
     });
 

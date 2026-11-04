@@ -350,7 +350,7 @@ export class DDBProvider implements IDataProvider {
             node.$fromQN = qNode;
             node.$ns = qNode.$ns;
             node.data = m as Partial<T>;
-            node.$id = this.kodo.tryGetObjectId(m, qNode.$ns) || m.id || m[table.pk] || generateHashCode(m);
+            node.$id = this.kodo.tryGetObjectId(m, qNode.$ns) || m.id || m[table.pk] || `${qNode.$ns}-${generateHashCode(m)}`;
             return node;
         });
     }

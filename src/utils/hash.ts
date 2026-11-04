@@ -34,7 +34,7 @@ function objToString(obj: any): string {
     return str;
 }
 
-export function generateHashCode(obj: any,
+export function generateHashCode(obj?: any,
     opt?: {
         seed?: number
     }): string {

@@ -16,8 +16,7 @@ export function evaluateRule<T = any>(rule: NotificationRule<T>, nodes: DataNode
     const expect = rule.expect ?? "all";
 
     // Optional target namespace: only evaluate nodes in that namespace.
-    const ns = rule.target?.$ns;
-    const scoped = ns ? nodes.filter(n => n.$ns === ns) : nodes;
+    const scoped = rule?.$ns ? nodes.filter(n => n.$ns === rule?.$ns) : nodes;
 
     // Evaluate the predicate on each node's data. "defer" is undecidable and ignored.
     const results = scoped.map(n => match<T>(rule.match, n.data));

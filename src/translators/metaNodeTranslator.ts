@@ -89,7 +89,7 @@ export class MetaNodeTranslator implements INodeTranslator {
 
         fromNodes.forEach(ln => {
             let qn = new QueryNode<TTo>();
-            qn.$id = `qn-${data.$ns}-${data.$id}-${ln.$id}`;
+            qn.$id = `qn.${data.$ns}.${data.$id}.${generateHashCode()}`;
             qn.$ns = this.getNsName(ln.$to);
             qn.$fromDN = data;
             qn.$fromLN = ln;

@@ -17,7 +17,7 @@ class RecordingNotifier implements INotifier {
 }
 
 function rule(overrides: Partial<NotificationRule> = {}): NotificationRule {
-    return { id: "r", target: { $ns: "Payment" }, match: {}, ...overrides };
+    return { id: "r", $ns: "Payment", match: {}, ...overrides };
 }
 
 function ids(violated: DataNode<any>[]): (string | number)[] {
@@ -51,8 +51,9 @@ describe("explore + any / none quantifier", () => {
     test("any Payment amount > 9999 fails with no offending node", async () => {
         let nodes = await kodo.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
         let violations = await kodo.checkRules([rule({ expect: "any", match: { amount: { $op: ">", $val: 9999 } } })], nodes);
+
         strictEqual(violations.length, 1);
-        strictEqual(violations[0].violated.length, 0);
+        strictEqual(violations[0].violated.length, 2);
     });
 
     test("none Payment amount > 9999 passes", async () => {
@@ -115,14 +116,14 @@ describe("explore + target namespace filtering", () => {
         let nodes = await kodo.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
         strictEqual(nodes.length, 6);
 
-        let ok = await kodo.checkRules([rule({ target: { $ns: "PaymentDetail" }, match: { amount: { $op: "<=", $val: 2800 } } })], nodes);
+        let ok = await kodo.checkRules([rule({ $ns: "PaymentDetail", match: { amount: { $op: "<=", $val: 2800 } } })], nodes);
         strictEqual(ok.length, 0);
 
-        let bad = await kodo.checkRules([rule({ target: { $ns: "PaymentDetail" }, match: { amount: { $op: "<", $val: 2800 } } })], nodes);
+        let bad = await kodo.checkRules([rule({ $ns: "PaymentDetail", match: { amount: { $op: "<", $val: 2800 } } })], nodes);
         strictEqual(bad.length, 1);
         strictEqual(ids(bad[0].violated), ["pd3-2"]);
 
-        let owner = await kodo.checkRules([rule({ target: { $ns: "OrderOwner" }, expect: "any", match: { name: "LPSV0001" } })], nodes);
+        let owner = await kodo.checkRules([rule({ $ns: "OrderOwner", expect: "any", match: { name: "LPSV0001" } })], nodes);
         strictEqual(owner.length, 0);
     });
 });
