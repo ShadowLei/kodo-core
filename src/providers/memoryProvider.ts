@@ -48,7 +48,7 @@ export class MemoryProvider implements IDataProvider {
         //convert to data node
         let rtn = list.map(m => {
             let node = new DataNode<T>();
-            node.$fromQN = qNode;
+            node.$fromQN.push(qNode);
             node.$ns = this.getNameNs(m.ns);
             node.data = m.val;
             node.$id = this.kodo.tryGetObjectId(m.val, node.$ns) || m.val?.id || `${qNode.$ns}-${generateHashCode(m.val)}`;

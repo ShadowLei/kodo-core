@@ -10,7 +10,6 @@ export interface ExploreOption {
 }
 
 export interface KodoOption extends ExploreOption {
-    //TODO here: no useful
     cache: boolean;
     recursion: boolean;
     //每次查询强制 limit，防止客户编写错误查询导致大量数据返回
@@ -97,14 +96,29 @@ export class Kodo {
         this.notifier.register(n);
     }
 
-    private hasNamespaceInPath<T>(startup: QueryNode<T>): boolean {
-        let dn = startup.$fromDN;
-        while (dn) {
-            if (dn.$ns === startup.$ns) {
-                return true;
-            }
-            dn = dn.$fromQN?.$fromDN;
+    private hasNamespaceInPath<T>(
+        dn: DataNode<any> | undefined,
+        targetNs: string,
+        depth: number,
+    ): boolean {
+        if (!dn) return false;
+        if (depth >= this.opt.tierLimit) return false;
+
+        // 当前 DN 所属的 QN 层级检查
+        if (dn.$ns === targetNs) {
+            return true;
         }
+
+        // $fromDN.$fromQN 是数组，遍历所有父 QN
+        const parents = dn.$fromQN;
+        if (Array.isArray(parents)) {
+            for (const parent of parents) {
+                if (parent && this.hasNamespaceInPath(parent.$fromDN, targetNs, depth + 1)) {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
@@ -120,7 +134,7 @@ export class Kodo {
     }
 
     private async loopExplore<T>(startup: QueryNode<T>, exlpreOpt: ExploreOption): Promise<void> {
-        if (!this.opt.recursion && this.hasNamespaceInPath(startup)) {
+        if (!this.opt.recursion && this.hasNamespaceInPath(startup.$fromDN, startup.$ns, 0)) {
             return;
         }
         if (this.opt.tierLimit) {
@@ -142,8 +156,12 @@ export class Kodo {
 
         //1.2 try add
         founds.forEach(f => {
-            let added = this.nodes.tryAdd(f);
-            if (added) { foundList.push(f); }
+            let {rtn, node} = this.nodes.tryAdd(f);
+            if (rtn) {
+                foundList.push(f);
+            } else {
+                node.$fromQN.push(startup);
+            }
         });
 
         const qns = this.gatherNext(foundList);

@@ -24,6 +24,8 @@ It then will select & load all the related data via your giving.
 * v0.1.4: add KodoOption, openspec
 * v0.1.5: fix bug & simplify link-expression
 * v0.1.6: Add object {get $id(): string;} to support custom id
+* v0.1.7: Add notification
+* v0.1.8: [break-change][interface] fix multi-nodes w/ the same parent issue, change type of $fromQN from obj => arr
 
 ## Design
 * Kodo-Overview:

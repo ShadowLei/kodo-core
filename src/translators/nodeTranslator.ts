@@ -63,7 +63,7 @@ export class NodeTranslator implements INodeTranslator {
         rtnQE[where.$to] ||= {} as any;
         // (rtnQE[where.$to] as QueryOnValue<TTo, keyof TTo>).$op = LinkNodeUtil.convertLP2RO(rop);
         (rtnQE[where.$to] as QueryOnValue<TTo, keyof TTo>).$op = LinkNodeUtil.convertLP2RO(where.$op);
-        (rtnQE[where.$to] as QueryOnValue<TTo, keyof TTo>).$val = dataVal as any; //TODO here: better strong type?
+        (rtnQE[where.$to] as QueryOnValue<TTo, keyof TTo>).$val = dataVal as any;
 
         // console.log("===try map to ===");
         // console.log(rtnQE);

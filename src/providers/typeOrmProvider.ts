@@ -170,7 +170,7 @@ export class TypeOrmProvider implements IDataProvider {
         //convert to data node
         let rtn: DataNode<T>[] = list.map(m => {
             let node = new DataNode<T>();
-            node.$fromQN = qNode;
+            node.$fromQN.push(qNode);
             node.$ns = qNode.$ns;
             node.data = m as Partial<T>;
             node.$id = this.kodo.tryGetObjectId(m, qNode.$ns) || m.id || `${qNode.$ns}-${generateHashCode(m)}`;
