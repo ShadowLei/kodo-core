@@ -17,7 +17,6 @@ By doing so, kodo-core could be able to load & query data from one `kodo node` t
 * `Kodo.explore()` can then auto. query based on the datasource & network defined in `Pre-Condition-A` & `Pre-Condition-B`.
 * `Kodo.checkRules()` can be used for data validation among the query result - `DataNode(s)`.
 
-
 ## Init & Usages
 We first need to prepare the `data provider` for kodo-core, here's a default inside momory provider embeded in `kodo-core`.
 > Check the test cases please there's a few examples.
@@ -30,13 +29,23 @@ It then will select & load all the related data via your giving.
   > i.e. `expression: p => p.orderid === "o3" && p.id === "p3-2"`
 * v0.1.1: Swtich compiler tools from `NodeJs` to `Bun`
 * v0.1.2: Add `DynamoDB Data Provider`, note only support Query, Scan is not supported. Add option `limit` as well to avoid unintentional of massive query
-* v0.1.3: try `AI Coding`
-* v0.1.4: add KodoOption, `openspec`
-* v0.1.5: fix bug & simplify link-expression
+* v0.1.3: Try `AI Coding`
+* v0.1.4: Add KodoOption, `openspec`
+* v0.1.5: Fix bug & simplify link-expression
 * v0.1.6: Add object `{get $id(): string;}` to support custom id
 * v0.1.7: Add `rule & notification`
 * v0.1.8: `[break-change][interface]` fix multi-nodes w/ the same parent issue, change type of $fromQN from obj => arr
 * v0.1.9: Add `$from`, `$to` onto `DataNode`, plan to use those 2 as formal linkage usage.
+
+## Plan to Support Features
+* `CEL` (Google - Common Expression Language)
+* Customzied `Map Query` based on CEL
+* Enhanced `Rule` | `Notification` via `CEL` | `Map Query`
+* Support `JSON Object | Path` grammar in `QueryExpression`
+* Support `JSON Object | Path` grammar in `CEL` | `Notification`
+
+## Plan to Fix
+* Customized `JSON.stringify()` to allow Node (DataNode | LinkNode | QueryNode) to go across network.
 
 ## Design
 * Kodo-Overview:
