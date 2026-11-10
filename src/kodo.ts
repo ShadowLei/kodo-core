@@ -3,7 +3,7 @@ import { DataNode, DataNodeMap, LinkNode, QueryNode } from "./nodes";
 import { INotifier, NotificationEngine, NotificationRule, Notifier, RuleViolation } from "./notify";
 import { IDataProvider } from "./providers";
 import { INodeTranslator } from "./translators";
-import { generateHashCode } from "./utils";
+import { generateHashCode, trySetFromTo } from "./utils";
 
 export interface ExploreOption {
     tierLimit: number;
@@ -158,9 +158,14 @@ export class Kodo {
         founds.forEach(f => {
             let {rtn, node} = this.nodes.tryAdd(f);
             if (rtn) {
+                // not exist, add new
                 foundList.push(f);
+                f.$fromQN.push(startup);
+                trySetFromTo(f, startup);
             } else {
+                // already exist, abandon found
                 node.$fromQN.push(startup);
+                trySetFromTo(node, startup);
             }
         });
 

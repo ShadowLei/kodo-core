@@ -1,3 +1,4 @@
+import { DataNode, QueryNode } from "../nodes";
 
 const SEED_DEFAULT = Math.ceil(Math.random() * 100000);
 
@@ -52,4 +53,20 @@ export function generateHashCode(obj?: any,
     hash = hash & 0x7FFFFFFF;
 
     return hash.toString();
+}
+
+
+export function trySetFromTo<T>(node: DataNode<T>, qNode: QueryNode<T>) {
+    let fromNode = qNode.$fromDN;
+    if (!fromNode) { return; }
+    
+    let existFrom = node.$from.find(m => m.$ns === fromNode.$ns && m.$id === fromNode.$id);
+    if (!existFrom) {
+        node.$from.push(fromNode);
+    }
+
+    let existTo = fromNode.$to.find(m => m.$ns === node.$ns && m.$id === node.$id);
+    if (!existTo) {
+        fromNode.$to.push(node);
+    }
 }

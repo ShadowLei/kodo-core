@@ -11,7 +11,7 @@ import {
     isQueryOnValue,
 } from "../expressions";
 import { IDataProvider } from "./iDataProvider";
-import { generateHashCode, isNullOrUndefined } from "../utils";
+import { generateHashCode, isNullOrUndefined, trySetFromTo } from "../utils";
 import { Kodo } from "../kodo";
 
 /*
@@ -347,7 +347,8 @@ export class DDBProvider implements IDataProvider {
 
         return items.map(m => {
             const node = new DataNode<T>();
-            node.$fromQN.push(qNode);
+            // node.$fromQN.push(qNode);
+            // trySetFromTo(node, qNode);
             node.$ns = qNode.$ns;
             node.data = m as Partial<T>;
             node.$id = this.kodo.tryGetObjectId(m, qNode.$ns) || m.id || m[table.pk] || `${qNode.$ns}-${generateHashCode(m)}`;

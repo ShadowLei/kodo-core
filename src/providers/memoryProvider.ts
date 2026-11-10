@@ -2,7 +2,7 @@ import { DataNode } from "../nodes";
 import { QueryNode } from "../nodes/queryNode";
 import { NodeNamespace } from "../expressions";
 import { IDataProvider } from "./iDataProvider";
-import { generateHashCode } from "../utils";
+import { generateHashCode, trySetFromTo } from "../utils";
 import { match } from "../utils/expressionMatcher";
 import { Kodo } from "../kodo";
 
@@ -48,7 +48,8 @@ export class MemoryProvider implements IDataProvider {
         //convert to data node
         let rtn = list.map(m => {
             let node = new DataNode<T>();
-            node.$fromQN.push(qNode);
+            // node.$fromQN.push(qNode);
+            // trySetFromTo(node, qNode);
             node.$ns = this.getNameNs(m.ns);
             node.data = m.val;
             node.$id = this.kodo.tryGetObjectId(m.val, node.$ns) || m.val?.id || `${qNode.$ns}-${generateHashCode(m.val)}`;

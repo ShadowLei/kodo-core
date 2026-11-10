@@ -5,8 +5,18 @@ It's bulky, but it's powerful.
 npm install --save kodo-core
 
 ## Summary
-`kodo-core` is used to describe & connect data together.
+`kodo-core` is used to describe & connect Heterogeneous data (source) together.
 By doing so, kodo-core could be able to load & query data from one `kodo node` to another, in a predefined `kodo network`.
+
+## Key Ability
+* `Pre-Condition-A`: Link data model | structure together into a `network`, or a `map`.
+  > Data model can be based on heterogeneous data source (i.e. Postgre, DynamoDB, Memory, API-JSON etc.).
+  > This ability provided by `IDataProvider` as a plugin can be registered.
+* `Pre-Condition-B`: Query from one point of the data model you defined above.
+  > This ability provided by `INodeTranslator` as a plugin can be registered.
+* `Kodo.explore()` can then auto. query based on the datasource & network defined in `Pre-Condition-A` & `Pre-Condition-B`.
+* `Kodo.checkRules()` can be used for data validation among the query result - `DataNode(s)`.
+
 
 ## Init & Usages
 We first need to prepare the `data provider` for kodo-core, here's a default inside momory provider embeded in `kodo-core`.
@@ -18,14 +28,15 @@ It then will select & load all the related data via your giving.
 ## Version Updates
 * v0.0.4: Support query expression on `QueryNode<T>` when explore.
   > i.e. `expression: p => p.orderid === "o3" && p.id === "p3-2"`
-* v0.1.1: Swtich compiler tools from NodeJs to Bun
-* v0.1.2: Add DynamoDB provider, note only support Query, Scan is not supported. Add option "limit" as well to avoid unintentional of massive query
-* v0.1.3: try AI coding
-* v0.1.4: add KodoOption, openspec
+* v0.1.1: Swtich compiler tools from `NodeJs` to `Bun`
+* v0.1.2: Add `DynamoDB Data Provider`, note only support Query, Scan is not supported. Add option `limit` as well to avoid unintentional of massive query
+* v0.1.3: try `AI Coding`
+* v0.1.4: add KodoOption, `openspec`
 * v0.1.5: fix bug & simplify link-expression
-* v0.1.6: Add object {get $id(): string;} to support custom id
-* v0.1.7: Add notification
-* v0.1.8: [break-change][interface] fix multi-nodes w/ the same parent issue, change type of $fromQN from obj => arr
+* v0.1.6: Add object `{get $id(): string;}` to support custom id
+* v0.1.7: Add `rule & notification`
+* v0.1.8: `[break-change][interface]` fix multi-nodes w/ the same parent issue, change type of $fromQN from obj => arr
+* v0.1.9: Add `$from`, `$to` onto `DataNode`, plan to use those 2 as formal linkage usage.
 
 ## Design
 * Kodo-Overview:

@@ -5,10 +5,15 @@ export class DataNode<T> {
     $ns: string;
 
     $fromQN: QueryNode<T>[];
+    $from: DataNode<any>[];
+    $to: DataNode<any>[];
+
     data: Partial<T>;
 
     constructor() {
         this.$fromQN = [];
+        this.$from = [];
+        this.$to = [];
     }
 }
 

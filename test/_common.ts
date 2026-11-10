@@ -10,11 +10,22 @@ function printNode(node: DataNode<any>) {
     let loopTime = 0;
     while (true) {
 
-        // console.log(`id: ${n.$id}`);
-        // console.log(`qnid: ${n.$fromQN?.$id}`);
-        // console.log(`lnid: ${n.$fromQN?.$fromLN?.$id || null}`);
+        console.log(`id: ${n.$id}`);
+        console.log(`qnid: ${n.$fromQN[0]?.$id}`);
+        console.log(`lnid: ${n.$fromQN[0]?.$fromLN?.$id || null}`);
 
-        n = n.$fromQN[0]?.$fromDN;
+        for (const from of n.$from) {
+            console.log(`from: ${from.$id}`);
+        }
+
+        for (const to of n.$to) {
+            console.log(`to: ${to.$id}`);
+        }
+
+        // n = n.$fromQN[0]?.$fromDN;
+        // console.log(n.$from.length);
+        // console.log(n.$fromQN.length);
+        n = n.$from[0];
         console.log();
 
         if (!n) { break; }

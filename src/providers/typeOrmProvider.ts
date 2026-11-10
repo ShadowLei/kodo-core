@@ -2,7 +2,7 @@ import { DataNode } from "../nodes";
 import { QueryNode } from "../nodes/queryNode";
 import { QueryExpression, ROperator, BOperator, isQueryExpressionKey, QueryOn, QueryOnValue, QueryExpressionObject, isQueryOnValue } from "../expressions";
 import { IDataProvider } from "./iDataProvider";
-import { generateHashCode, isNullOrUndefined } from "../utils";
+import { generateHashCode, isNullOrUndefined, trySetFromTo } from "../utils";
 import { And, Between, Brackets, DataSource, Equal, FindOperator, FindOptionsWhere, ILike, In, IsNull, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Not, ObjectLiteral, Or, Repository, SelectQueryBuilder, WhereExpressionBuilder } from "typeorm";
 import { Kodo } from "../kodo";
 
@@ -170,7 +170,8 @@ export class TypeOrmProvider implements IDataProvider {
         //convert to data node
         let rtn: DataNode<T>[] = list.map(m => {
             let node = new DataNode<T>();
-            node.$fromQN.push(qNode);
+            // node.$fromQN.push(qNode);
+            // trySetFromTo(node, qNode);
             node.$ns = qNode.$ns;
             node.data = m as Partial<T>;
             node.$id = this.kodo.tryGetObjectId(m, qNode.$ns) || m.id || `${qNode.$ns}-${generateHashCode(m)}`;

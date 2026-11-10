@@ -46,7 +46,7 @@ describe("TMP Test", async function () {
             }
         ], nodes);
 
-        // console.log(nodes);
+        // printNodes(nodes);
 
         strictEqual(violations.length, 1);
         strictEqual(violations[0].violated.length, 2);
