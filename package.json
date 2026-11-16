@@ -1,6 +1,6 @@
 {
   "name": "kodo-core",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "author": "Shadow Lei",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,6 +24,7 @@
     "test:ddb": "bun test ./test/ddb/*.test.ts",
     "test:tmp": "bun test ./test/tmp/tmp.test.ts",
     "test:notify": "bun test ./test/notify/*.test.ts",
+    "test:cel": "bun test ./test/cel/*.test.ts",
     "test": "bun test ./test/**/*.test.ts"
   },
   "keywords": [
@@ -39,6 +40,8 @@
     "@aws-sdk/lib-dynamodb": "^3.1156.0",
     "@marcbachmann/cel-js": "^8.0.0",
     "@types/pg": "^8.23.1",
+    "devalue": "^6.0.3",
+    "json-decycle": "^4.0.0",
     "pg": "^8.23.0",
     "typeorm": "^1.1.1"
   },

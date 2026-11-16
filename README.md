@@ -2,7 +2,8 @@
 It's bulky, but it's powerful.
 
 ## Install
-npm install --save kodo-core
+* npm install kodo-core
+* bun install kodo-core
 
 ## Summary
 `kodo-core` is used to describe & connect Heterogeneous data (source) together.
@@ -18,11 +19,11 @@ By doing so, kodo-core could be able to load & query data from one `kodo node` t
 * `Kodo.checkRules()` can be used for data validation among the query result - `DataNode(s)`.
 
 ## Init & Usages
-We first need to prepare the `data provider` for kodo-core, here's a default inside momory provider embeded in `kodo-core`.
-> Check the test cases please there's a few examples.
-Then we need write `expression` to describe the data relationship & connect them together.
-By doing the 2 preparations, we can then give a detailed data from any `kodo node` & start to query.
-It then will select & load all the related data via your giving.
+* We first need to prepare the `data provider` for kodo-core, here's a default inside momory provider embeded in `kodo-core`.
+  > Check the test cases please there's a few examples.
+* Then we need write `expression` to describe the data relationship & connect them together.
+* By doing the 2 preparations, we can then give a detailed data from any `kodo node` & start to query.
+* It then will select & load all the related data via your giving.
 
 ## Version Updates
 * v0.0.4: Support query expression on `QueryNode<T>` when explore.
@@ -36,16 +37,22 @@ It then will select & load all the related data via your giving.
 * v0.1.7: Add `rule & notification`
 * v0.1.8: `[break-change][interface]` fix multi-nodes w/ the same parent issue, change type of $fromQN from obj => arr
 * v0.1.9: Add `$from`, `$to` onto `DataNode`, plan to use those 2 as formal linkage usage.
+* v0.2.0: `[break-change][interface]`
+  > Take `Rule` | `Notification` out of Kodo as they're seperated functions.
+  > Change `match` to `matchExpression` to support both `CEL` and `QueryMatch<T>` function.
+  > Move notify function out from `Kodo` to `KodoNotifier.validate()`
 
 ## Plan to Support Features
-* `CEL` (Google - Common Expression Language)
-* Customzied `Map Query` based on CEL
-* Enhanced `Rule` | `Notification` via `CEL` | `Map Query`
-* Support `JSON Object | Path` grammar in `QueryExpression`
-* Support `JSON Object | Path` grammar in `CEL` | `Notification`
+* (✓) `CEL` (Google - Common Expression Language)
+* (✓) Enhanced `Rule` | `Notification` via `CEL` | `Map Query`
+* (✓) Support `$from` & `$to` simplify the map query in further
+* (?) Customzied `Map Query` based on CEL
+* (?) Support `JSON Object | Path` grammar in `QueryExpression`
+* (?) Support `JSON Object | Path` grammar in `CEL` | `Notification`
 
 ## Plan to Fix
-* Customized `JSON.stringify()` to allow Node (DataNode | LinkNode | QueryNode) to go across network.
+* (✓) Customized `JSON.stringify()` to allow Node (DataNode | LinkNode | QueryNode) to go across network.
+  > use `wrap()` please.
 
 ## Design
 * Kodo-Overview:

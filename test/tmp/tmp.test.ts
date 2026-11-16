@@ -1,4 +1,4 @@
-import { ConsoleNotifier, DataNode, Kodo, NotificationRule } from "../../src";
+import { ConsoleNotifier, DataNode, Kodo, KodoNotifier, NotificationRule } from "../../src";
 import { Order, Payment } from "../_module";
 import { initKodoTestExpressionData, initKodoTestData } from "./_orm_link";
 import { printNodes, strictEqual, verifyIds } from "../_common";
@@ -18,27 +18,31 @@ let kodo = new Kodo("my-test-net", {
     recursion: false
 });
 initKodoTestData(kodo);
-kodo.registerNotifier(new ConsoleNotifier());
+
+let kodoNotifier = new KodoNotifier({ celWrap: false });
+// kodoNotifier.registerNotifier(new ConsoleNotifier());
+
 
 describe("TMP Test", async function () {
 
     test("any Payment amount [100, 200] - none", async () => {
         let nodes = await kodo.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
-        let violations = await kodo.checkRules([
+        let violations = await kodoNotifier.validate([
             {
-                // id: "payment between [100, 200]",
-                $ns: "Payment",
-                expect: "any",
-                match: {
-                    $with: "&&",
-                    $where: [
-                    {
-                        amount: { $op: ">=", $val: 100 }
-                    },
-                    {
-                        amount: { $op: "<=", $val: 200 }
+                matchExpression: {
+                    $ns: "Payment",
+                    expect: "any",
+                    match: {
+                        $with: "&&",
+                        $where: [
+                        {
+                            amount: { $op: ">=", $val: 100 }
+                        },
+                        {
+                            amount: { $op: "<=", $val: 200 }
+                        }]
                     }
-                ]},
+                },
                 notify: {
                     channels: ["console", "email"],
                     message: "payment between [100, 200]"
@@ -54,7 +58,7 @@ describe("TMP Test", async function () {
 
     // test("any amount - [100, 200] - none", async () => {
     //     let nodes = await kodo.explore<Order>({ $ns: "Order", expression: { id: "o3" } });
-    //     let violations = await kodo.checkRules([
+    //     let violations = await kodoNotifier.validate([
     //         {
     //             id: "my-tmp-validation-rule",
     //             // $ns: "Payment",

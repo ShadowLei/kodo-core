@@ -1,5 +1,5 @@
 import { DataNode } from "../nodes";
-import { NotificationRule } from "./rule";
+import { NotificationRule } from "./_ruleDefine";
 
 export interface INotifier {
     name: string;
@@ -22,29 +22,5 @@ export class ConsoleNotifier implements INotifier {
         console.log(rule);
         console.error(`-- data (${violated.length}) --`);
         console.log(violated);
-    }
-}
-
-export class Notifier {
-    private notifier: INotifier[];
-
-    constructor() {
-        this.notifier = [];
-    }
-
-    register(n: INotifier) {
-        this.notifier.push(n);
-    }
-
-    async notify(rule: NotificationRule, nodes: DataNode<any>[]): Promise<any> {
-
-        // console.log(rule.notify?.channels);
-
-        let channels = rule.notify?.channels || [];
-        let ns = this.notifier.filter(m => channels.some(n => n === m.name));
-
-        if (ns.length <= 0) { return; }
-
-        return Promise.allSettled(ns.map(n => n.notify(rule, nodes)));
     }
 }

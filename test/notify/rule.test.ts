@@ -1,13 +1,14 @@
 import { describe, test, expect } from "bun:test";
 import {
     DataNode,
-    evaluateRule,
-    INotifier,
-    Kodo,
-    NotificationEngine,
+    KodoNotifier,
     NotificationRule,
+    QueryMatch,
     RuleViolation,
 } from "../../src";
+
+let kodoNotifier = new KodoNotifier({ celWrap: false });
+// kodoNotifier.registerNotifier(new ConsoleNotifier());
 
 function node(ns: string, id: string, data: any): DataNode<any> {
     const n = new DataNode();
@@ -23,13 +24,21 @@ const payments: DataNode<any>[] = [
     node("Payment", "p3", { id: "p3", amount: 200 }),
 ];
 
-function rule(overrides: Partial<NotificationRule> = {}): NotificationRule {
+function rule(overrides: Partial<QueryMatch<any>> = {}): NotificationRule {
     return {
         id: "r1",
-        expect: "all",
-        match: { amount: { $op: "<=", $val: 2500 } },
-        ...overrides,
+        matchExpression: {
+            expect: "all",
+            match: { amount: { $op: "<=", $val: 2500 } },
+            ...overrides
+        }
     };
+}
+
+function evaluateRule(rule: NotificationRule, nodes: DataNode<any>[]) {
+    let rtn = kodoNotifier.validateOnly([rule], nodes);
+
+    return rtn[0] || null;
 }
 
 describe("evaluateRule - all", () => {
@@ -38,9 +47,10 @@ describe("evaluateRule - all", () => {
         expect(evaluateRule(r, payments)).toBeNull();
     });
 
-    test("fails when any node violates and reports the offending nodes", () => {
+    test("fails when any node violates and reports the offending nodes", async () => {
         const r = rule({ match: { amount: { $op: "<=", $val: 2500 } } });
         const v = evaluateRule(r, payments);
+        
         expect(v).not.toBeNull();
         expect(v!.rule.id).toBe("r1");
         expect(v!.violated.map(n => n.$id)).toEqual(["p2"]);
@@ -147,30 +157,29 @@ describe("evaluateRule - nested and operators", () => {
 
 describe("evaluateRule - disabled rules", () => {
     test("disabled rules are skipped", () => {
-        const r = rule({ active: false, match: { amount: { $op: "<=", $val: 2500 } } });
+        const r = rule({ match: { amount: { $op: "<=", $val: 2500 } } });
+        r.active = false;
         expect(evaluateRule(r, payments)).toBeNull();
     });
 });
 
 describe("NotificationEngine", () => {
     test("notifies for each violated rule", async () => {
-        const engine = new NotificationEngine();
         const rules = [
-            rule({ id: "ok", match: { amount: { $op: ">=", $val: 0 } } }),
-            rule({ id: "bad", match: { amount: { $op: "<=", $val: 2500 } } }),
+            rule({ match: { amount: { $op: ">=", $val: 0 } } }),
+            rule({ match: { amount: { $op: "<=", $val: 2500 } } }),
         ];
 
-        const violations = await engine.check(rules, payments);
+        const violations = await kodoNotifier.validate(rules, payments);
 
         expect(violations.length).toBe(1);
-        expect(violations[0].rule.id).toBe("bad");
+        expect(violations[0].rule.id).toBe("r1");
     });
 });
 
-describe("Kodo.checkRules", () => {
+describe("kodoNotifier.validate", () => {
     test("evaluates the provided nodes and returns violations", async () => {
-        const kodo = new Kodo("test-notify");
-        const violations: RuleViolation[] = await kodo.checkRules(
+        const violations: RuleViolation[] = await kodoNotifier.validate(
             [rule({ match: { amount: { $op: "<=", $val: 2500 } } })],
             payments,
         );
