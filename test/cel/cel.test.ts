@@ -5,7 +5,6 @@ import { printNodes, strictEqual, verifyIds } from "../_common";
 import { describe, test } from 'bun:test';
 import { Environment, evaluate } from "@marcbachmann/cel-js";
 import { Order, Payment } from "../_module";
-import * as devalue from 'devalue';
 import { decycle, retrocycle } from "json-decycle";
 
 // function rule(overrides: Partial<NotificationRule> = {}): NotificationRule {
@@ -43,8 +42,6 @@ const env = new Environment({ unlistedVariablesAreDyn: true})
     });
 
 function wrap(obj: any): any {
-    // let v = devalue.stringify(obj);
-    // return devalue.parse(v);
     let v = JSON.stringify(obj, decycle());
     return JSON.parse(v, retrocycle());
 }

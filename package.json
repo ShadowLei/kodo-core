@@ -1,6 +1,6 @@
 {
   "name": "kodo-core",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "Shadow Lei",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -40,7 +40,6 @@
     "@aws-sdk/lib-dynamodb": "^3.1156.0",
     "@marcbachmann/cel-js": "^8.0.0",
     "@types/pg": "^8.23.1",
-    "devalue": "^6.0.3",
     "json-decycle": "^4.0.0",
     "pg": "^8.23.0",
     "typeorm": "^1.1.1"
