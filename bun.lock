@@ -9,7 +9,7 @@
         "@aws-sdk/lib-dynamodb": "^3.1156.0",
         "@marcbachmann/cel-js": "^8.0.0",
         "@types/pg": "^8.23.1",
-        "json-decycle": "^4.0.0",
+        "json-cycle": "^1.5.0",
         "pg": "^8.23.0",
         "typeorm": "^1.1.1",
       },
@@ -115,7 +115,7 @@
 
     "get-east-asian-width": ["get-east-asian-width@1.6.0", "", {}, "sha512-QRbvDIbx6YklUe6RxeTeleMR0yv3cYH6PsPZHcnVn7xv7zO1BHN8r0XETu8n6Ye3Q+ahtSarc3WgtNWmehIBfA=="],
 
-    "json-decycle": ["json-decycle@4.0.0", "", {}, "sha512-3GFL/vWazCbMu1kw+NdIfAHh6Ugq5pxkKcSUnK1f/Fw1nDtt1i+BiBfRJs0iPEKscYAz4k4+osvgjY95hmuJXQ=="],
+    "json-cycle": ["json-cycle@1.5.0", "", {}, "sha512-GOehvd5PO2FeZ5T4c+RxobeT5a1PiGpF4u9/3+UvrMU4bhnVqzJY7hm39wg8PDCqkU91fWGH8qjWR4bn+wgq9w=="],
 
     "meta-mapper": ["meta-mapper@0.3.0", "", { "dependencies": { "reflect-metadata": "^0.1.13" } }, "sha512-ZTMIpoo0DxmzXXdndHzbRD1weGRWAN9F3Gn+SUeFtjwIGBMcdhGwWibFDR9Ir/oNVfP690ilExKM+mzxCRtQyw=="],
 

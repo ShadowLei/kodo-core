@@ -41,7 +41,7 @@ By doing so, kodo-core could be able to load & query data from one `kodo node` t
   > Take `Rule` | `Notification` out of Kodo as they're seperated functions.
   > Change `match` to `matchExpression` to support both `CEL` and `QueryMatch<T>` function.
   > Move notify function out from `Kodo` to `KodoNotifier.validate()`
-* v0.2.1: Clear up, remove seldom use of cline | oepnspec
+* v0.2.1: Clear up, remove seldom use of cline | oepnspec, remove `json-decycle` for license reason, remove test db logging mode.
 
 ## Plan to Support Features
 * (✓) `CEL` (Google - Common Expression Language)

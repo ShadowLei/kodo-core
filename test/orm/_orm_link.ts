@@ -13,7 +13,7 @@ export function getDS() {
         password: "abc!@#123",
         database: "kodo_test",
         synchronize: false,
-        logging: true,
+        logging: false,
         entities: [Order, Payment, PaymentDetail, OrderOwner],
         subscribers: [],
     });

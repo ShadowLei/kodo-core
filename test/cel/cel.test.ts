@@ -1,11 +1,10 @@
-import { ConsoleNotifier, DataNode, Kodo, NotificationRule } from "../../src";
+import { ConsoleNotifier, DataNode, Kodo, NotificationRule, wrap } from "../../src";
 // import { Order, Payment } from "../_module";
 import { initKodoTestExpressionData, initKodoTestData } from "./_orm_link";
 import { printNodes, strictEqual, verifyIds } from "../_common";
 import { describe, test } from 'bun:test';
 import { Environment, evaluate } from "@marcbachmann/cel-js";
 import { Order, Payment } from "../_module";
-import { decycle, retrocycle } from "json-decycle";
 
 // function rule(overrides: Partial<NotificationRule> = {}): NotificationRule {
 //     return { id: "r", $ns: "Payment", match: {}, ...overrides };
@@ -40,11 +39,6 @@ const env = new Environment({ unlistedVariablesAreDyn: true})
         // 在 JS 层面执行求和，兼容 list 中可能存在的 null/undefined
         return list.reduce((acc, val) => acc + Number(val || 0), 0);
     });
-
-function wrap(obj: any): any {
-    let v = JSON.stringify(obj, decycle());
-    return JSON.parse(v, retrocycle());
-}
 
 describe("CEL Test", async function () {
 

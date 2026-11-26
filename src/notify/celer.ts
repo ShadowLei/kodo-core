@@ -1,5 +1,4 @@
 import { Environment } from "@marcbachmann/cel-js";
-import { decycle, retrocycle } from "json-decycle";
 import { DataNode } from "../nodes";
 import { wrap } from "../utils";
 
